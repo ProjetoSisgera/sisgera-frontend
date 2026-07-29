@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>SisGera — Guia de Estilo</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+
+  :root {
+    --cor-primaria: #D32F2F;
+    --cor-primaria-texto: #c62828;
+    --cor-fundo: #f4f7fa;
+    --cor-painel: #ffffff;
+    --cor-texto-principal: #2d3748;
+    --cor-texto-secundario: #475569;
+    --cor-borda: #e2e8f0;
+    --cor-pendente: #f59e0b;
+    --cor-arquivado: #10b981;
+    --cor-validado: #3b82f6;
+    --cor-rascunho: #9ca3af;
+    --cor-urgente-bg: #fee2e2;
+    --cor-urgente-text: #991b1b;
+    --cor-stepper-ativa: #D32F2F;
+    --cor-stepper-completa: #10b981;
+    --cor-stepper-inativa: #cbd5e1;
+    --sombra-padrao: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--cor-texto-principal);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  section { page-break-after: always; }
+  section:last-child { page-break-after: auto; }
+  h2, h3, .swatch, .demo-card, table { break-inside: avoid; }
+
+  /* ---- Cabeçalho de seção ---- */
+  .doc-eyebrow {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--cor-primaria); margin-bottom: 4px;
+  }
+  h2 {
+    font-size: 22px; font-weight: 700; color: var(--cor-texto-principal);
+    padding-bottom: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--cor-borda);
+  }
+  h3 { font-size: 15px; font-weight: 700; margin: 22px 0 10px; color: var(--cor-texto-principal); }
+  p.lede { color: var(--cor-texto-secundario); font-size: 13px; margin-bottom: 16px; max-width: 640px; }
+  .footer-note {
+    position: running(footer);
+  }
+
+  /* ---- Capa ---- */
+  .cover {
+    height: 245mm; display: flex; flex-direction: column; justify-content: center;
+  }
+  .cover .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
+  .cover .brand-icon {
+    width: 52px; height: 52px; border-radius: 12px; background: var(--cor-primaria); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700;
+  }
+  .cover .brand-name { font-size: 26px; font-weight: 700; }
+  .cover .brand-name span { color: var(--cor-primaria); }
+  .cover h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin-bottom: 14px; }
+  .cover .subtitle { font-size: 15px; color: var(--cor-texto-secundario); max-width: 480px; margin-bottom: 60px; }
+  .cover .meta { font-size: 12px; color: var(--cor-texto-secundario); border-top: 1px solid var(--cor-borda); padding-top: 16px; }
+  .cover .meta strong { color: var(--cor-texto-principal); }
+
+  /* ---- Grid de swatches ---- */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .swatch {
+    border: 1px solid var(--cor-borda); border-radius: 8px; overflow: hidden;
+  }
+  .swatch .fill { height: 46px; }
+  .swatch .info { padding: 8px 10px; background: #fff; }
+  .swatch .name { font-size: 12px; font-weight: 600; }
+  .swatch .value { font-size: 11px; color: var(--cor-texto-secundario); font-family: 'Consolas', monospace; }
+
+  code, .code {
+    font-family: 'Consolas', 'Monaco', monospace; font-size: 11.5px;
+    background: #f1f5f9; color: #334155; padding: 1px 5px; border-radius: 4px;
+  }
+  pre.code-block {
+    font-family: 'Consolas', 'Monaco', monospace; font-size: 11.5px; background: #0f172a; color: #e2e8f0;
+    padding: 12px 14px; border-radius: 8px; overflow: hidden; line-height: 1.6; margin: 10px 0 4px;
+  }
+
+  table.spec { width: 100%; border-collapse: collapse; margin: 8px 0 4px; font-size: 12px; }
+  table.spec th, table.spec td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--cor-borda); }
+  table.spec th { color: var(--cor-texto-secundario); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
+
+  .demo-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  /* ---- Demo: botões ---- */
+  .btn-primary { background: var(--cor-primaria); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-secondary { background: var(--cor-fundo); color: var(--cor-texto-principal); border: 1px solid var(--cor-borda); padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+  .btn-success { background: #10b981; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+  .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: #475569; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+  .btn-outline-secondary { background: transparent; border: 1px solid #cbd5e1; color: #475569; padding: 10px 22px; border-radius: 6px; font-size: 13px; font-weight: 500; }
+  .btn-disabled { background: var(--cor-borda); color: var(--cor-texto-secundario); border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+
+  /* ---- Demo: badges / pills ---- */
+  .badge { padding: 4px 12px; border-radius: 9999px; font-weight: 600; font-size: 11px; display: inline-block; }
+  .badge.pendente { background: #fef3c7; color: #92400e; }
+  .badge.urgente { background: var(--cor-urgente-bg); color: var(--cor-urgente-text); }
+  .badge.arquivado { background: #f0fdf4; color: #14532d; }
+  .badge.validado { background: #eff6ff; color: #1e40af; }
+  .badge.rascunho { background: #f3f4f6; color: #4b5563; }
+  .badge.inativo { background: #f1f5f9; color: #475569; }
+  .badge.manutencao { background: #fff7ed; color: #c2410c; }
+  .pill { padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .pill.pendente { background: #fff7ed; color: #c2410c; }
+  .pill.urgente { background: #fef2f2; color: #dc2626; }
+  .pill.andamento { background: #eff6ff; color: #2563eb; }
+  .pill.concluido { background: #f0fdf4; color: #16a34a; }
+  .pill.cancelado { background: #f1f5f9; color: #64748b; }
+  .pill.pendarq { background: #f5f3ff; color: #7c3aed; }
+
+  /* ---- Demo: cards ---- */
+  .kpi-card { background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05); }
+  .kpi-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: #eff6ff; color: #2563eb; }
+  .kpi-label { color: var(--cor-texto-secundario); font-size: 12px; font-weight: 500; }
+  .kpi-value { font-size: 20px; font-weight: 700; color: var(--cor-texto-principal); }
+
+  /* ---- Demo: formulário ---- */
+  .form-demo label { display: block; font-weight: 600; font-size: 12.5px; margin-bottom: 6px; }
+  .form-demo input, .form-demo select {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font-size: 13px; background: #fff; color: var(--cor-texto-principal);
+  }
+  .form-demo input.focused { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(211,47,47,.12); outline: none; }
+  .form-demo input.erro { border-color: #dc2626; background: #fff8f8; }
+  .erro-msg { color: #dc2626; font-size: 11px; font-weight: 500; margin-top: 4px; }
+  .field { margin-bottom: 14px; }
+
+  .toggle-card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #475569; display: inline-flex; align-items: center; gap: 6px; }
+  .toggle-card.selected { border-color: #ef4444; background: #fef2f2; color: #b91c1c; font-weight: 600; }
+
+  /* ---- Demo: tabela ---- */
+  table.data-demo { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.data-demo th { color: var(--cor-texto-secundario); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; background: #fafbfd; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--cor-borda); }
+  table.data-demo td { padding: 10px 14px; border-bottom: 1px solid var(--cor-borda); font-weight: 500; }
+
+  /* ---- Demo: stepper ---- */
+  .stepper-demo { display: flex; gap: 34px; align-items: flex-start; margin: 14px 0; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 90px; text-align: center; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; border: 2px solid var(--cor-stepper-inativa); color: var(--cor-stepper-inativa); }
+  .step.active .step-num { border-color: var(--cor-stepper-ativa); color: var(--cor-stepper-ativa); }
+  .step.done .step-num { background: var(--cor-stepper-completa); border-color: var(--cor-stepper-completa); color: #fff; }
+  .step-label { font-size: 11px; font-weight: 500; color: var(--cor-stepper-inativa); }
+  .step.active .step-label { color: var(--cor-stepper-ativa); font-weight: 600; }
+  .step.done .step-label { color: var(--cor-texto-principal); }
+
+  /* ---- Demo: sidebar ---- */
+  .sidebar-demo { width: 220px; border: 1px solid var(--cor-borda); border-radius: 10px; overflow: hidden; background: #fff; }
+  .sb-section-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--cor-texto-secundario); padding: 12px 18px 4px; }
+  .sb-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; margin: 3px 8px; border-radius: 8px; font-size: 12.5px; font-weight: 500; color: var(--cor-texto-secundario); }
+  .sb-item.active { background: #ffebee; color: var(--cor-primaria-texto); font-weight: 600; }
+  .sb-badge { display: flex; align-items: center; gap: 8px; margin: 10px 8px; padding: 8px 12px; border-radius: 10px; background: rgba(211,47,47,.08); border: 1px solid rgba(211,47,47,.18); }
+  .sb-badge .t1 { font-size: 11px; font-weight: 600; color: var(--cor-primaria-texto); display:block; }
+  .sb-badge .t2 { font-size: 9.5px; color: var(--cor-primaria-texto); display:block; }
+
+  /* ---- Modal demo ---- */
+  .modal-demo { border: 1px solid var(--cor-borda); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.12); overflow: hidden; max-width: 380px; }
+  .modal-demo .mh { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cor-borda); font-weight: 700; font-size: 14px; }
+  .modal-demo .mb { padding: 18px; font-size: 12.5px; color: var(--cor-texto-secundario); }
+  .modal-demo .mf { padding: 12px 18px; border-top: 1px solid var(--cor-borda); display: flex; justify-content: flex-end; gap: 8px; }
+
+  .checklist { list-style: none; }
+  .checklist li { padding: 5px 0 5px 24px; position: relative; font-size: 12.5px; }
+  .checklist li::before { content: '✓'; position: absolute; left: 0; color: var(--cor-arquivado); font-weight: 700; }
+
+  .callout { background: #f8fafc; border-left: 4px solid var(--cor-primaria); border-radius: 6px; padding: 12px 16px; font-size: 12px; color: #334155; margin: 12px 0; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .dark-panel { background: #0f172a; border-radius: 10px; padding: 16px; color: #f8fafc; }
+  .dark-panel .kpi-card { background: #1e293b; border-color: #1e293b; }
+  .dark-panel .kpi-label { color: #cbd5e1; }
+  .dark-panel .kpi-value { color: #f8fafc; }
+
+  footer.pagefoot { margin-top: 24px; padding-top: 8px; border-top: 1px solid var(--cor-borda); font-size: 10px; color: var(--cor-texto-secundario); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ CAPA ═══════════════════════ -->
+<section class="cover">
+  <div class="brand">
+    <div class="brand-icon">SG</div>
+    <div class="brand-name">Sis<span>Gera</span></div>
+  </div>
+  <div class="doc-eyebrow">Design System &amp; Guia de Estilo</div>
+  <h1>Guia de Estilo — Frontend SisGera</h1>
+  <p class="subtitle">Referência visual e de código para manter consistência entre telas: cores, tipografia, componentes, formulários e diretrizes de acessibilidade usadas no app.</p>
+  <div class="meta">
+    <strong>Projeto:</strong> SisGera — Sistema de Gestão para Corpo de Bombeiros (TCC)<br>
+    <strong>Repositório:</strong> sisgera-react (frontend) — fonte dos tokens: <code>src/styles/tokens.css</code><br>
+    <strong>Versão do documento:</strong> 1.0 — gerado a partir do código em produção
+  </div>
+</section>
+
+<!-- ═══════════════════════ CORES ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">01 · Fundamentos</div>
+  <h2>Cores</h2>
+  <p class="lede">Todas as cores base ficam em <code>src/styles/tokens.css</code> como variáveis CSS. Nunca usar hex direto em componentes reutilizáveis — sempre <code>var(--nome-do-token)</code>. Isso é o que permite corrigir contraste ou tema em um único lugar e propagar para o app inteiro.</p>
+
+  <h3>Marca e superfícies</h3>
+  <div class="grid cols-3">
+    <div class="swatch"><div class="fill" style="background:#D32F2F"></div><div class="info"><div class="name">Primária</div><div class="value">--cor-primaria · #D32F2F</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#c62828"></div><div class="info"><div class="name">Primária (texto)</div><div class="value">--cor-primaria-texto · #c62828</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#f4f7fa;border-bottom:1px solid #e2e8f0"></div><div class="info"><div class="name">Fundo</div><div class="value">--cor-fundo · #f4f7fa</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#ffffff;border-bottom:1px solid #e2e8f0"></div><div class="info"><div class="name">Painel</div><div class="value">--cor-painel · #ffffff</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#2d3748"></div><div class="info"><div class="name">Texto principal</div><div class="value">--cor-texto-principal · #2d3748</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#475569"></div><div class="info"><div class="name">Texto secundário</div><div class="value">--cor-texto-secundario · #475569</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#e2e8f0"></div><div class="info"><div class="name">Borda</div><div class="value">--cor-borda · #e2e8f0</div></div></div>
+  </div>
+
+  <h3>Cores de status</h3>
+  <div class="grid cols-3">
+    <div class="swatch"><div class="fill" style="background:#f59e0b"></div><div class="info"><div class="name">Pendente</div><div class="value">--cor-pendente · #f59e0b</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#10b981"></div><div class="info"><div class="name">Arquivado / Ativo</div><div class="value">--cor-arquivado · #10b981</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#3b82f6"></div><div class="info"><div class="name">Validado</div><div class="value">--cor-validado · #3b82f6</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#9ca3af"></div><div class="info"><div class="name">Rascunho</div><div class="value">--cor-rascunho · #9ca3af</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#fee2e2"></div><div class="info"><div class="name">Urgente (fundo)</div><div class="value">--cor-urgente-bg · #fee2e2</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#991b1b"></div><div class="info"><div class="name">Urgente (texto)</div><div class="value">--cor-urgente-text · #991b1b</div></div></div>
+  </div>
+
+  <div class="callout">
+    <strong>Regra de contraste:</strong> todo texto precisa de no mínimo <strong>4.5:1</strong> de contraste contra o fundo real (WCAG AA). Cuidado com dois erros já cometidos neste projeto: (1) aplicar <code>opacity</code> num texto que já tinha cor correta — a opacidade mistura com o fundo e derruba o contraste calculado; (2) usar a cor da marca como <em>texto</em> sobre um fundo colorido claro (ex: badge, link ativo) — nesse caso use <code>--cor-primaria-texto</code>, não <code>--cor-primaria</code>.
+  </div>
+
+  <h3>Modo escuro</h3>
+  <p class="lede" style="margin-bottom:6px">O dark mode redefine as mesmas variáveis dentro de <code>body.dark-mode</code> — os componentes não sabem que o tema mudou, só o valor da variável muda.</p>
+  <pre class="code-block">body.dark-mode {
+  --cor-fundo: #0f172a;
+  --cor-painel: #1e293b;
+  --cor-texto-principal: #f8fafc;
+  --cor-texto-secundario: #cbd5e1;
+  --cor-borda: #334155;
+}</pre>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Cores</span></footer>
+</section>
+
+<!-- ═══════════════════════ TIPOGRAFIA / ESPAÇAMENTO ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">01 · Fundamentos</div>
+  <h2>Tipografia, espaçamento e elevação</h2>
+
+  <h3>Família e escala tipográfica</h3>
+  <p class="lede" style="margin-bottom:10px">Fonte do sistema operacional (sem webfont carregada) — carrega instantâneo, sem FOUT:</p>
+  <code>-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif</code>
+
+  <table class="spec" style="margin-top:14px">
+    <tr><th>Uso</th><th>Tamanho / peso</th><th>Exemplo</th></tr>
+    <tr><td>Título de página (<code>.main-header h2</code>)</td><td>28px / 700</td><td style="font-size:22px;font-weight:700">Controle de Ocorrências</td></tr>
+    <tr><td>Título de card/modal (<code>h3</code>)</td><td>18px / 600</td><td style="font-size:16px;font-weight:600">Dados do Produto</td></tr>
+    <tr><td>Cabeçalho de seção de form (<code>.section-header</code>)</td><td>15px / 700</td><td><span style="background:#f1f5f9;padding:4px 10px;border-radius:6px;border-left:3px solid #D32F2F;font-weight:700;font-size:13px">Sinais Vitais</span></td></tr>
+    <tr><td>Corpo / label</td><td>13–14px / 500–600</td><td style="font-weight:600">Nome Completo *</td></tr>
+    <tr><td>Texto secundário / meta</td><td>12–13px / 500, cor secundária</td><td style="color:var(--cor-texto-secundario)">Preencha os dados abaixo...</td></tr>
+    <tr><td>Cabeçalho de tabela (<code>th</code>)</td><td>12px / 600, uppercase</td><td style="text-transform:uppercase;font-size:11px;font-weight:600;color:var(--cor-texto-secundario);letter-spacing:.05em">Status</td></tr>
+    <tr><td>Badge / pill</td><td>11–12px / 600</td><td><span class="badge validado">Validado</span></td></tr>
+  </table>
+
+  <h3>Raio de borda</h3>
+  <div class="grid cols-3">
+    <div class="swatch"><div class="fill" style="background:#e2e8f0;border-radius:6px 6px 0 0"></div><div class="info"><div class="name">6px</div><div class="value">botões outline, dropdown</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#e2e8f0;border-radius:8px 8px 0 0"></div><div class="info"><div class="name">8px</div><div class="value">inputs, botões, chips</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#e2e8f0;border-radius:12px 12px 0 0"></div><div class="info"><div class="name">12px</div><div class="value">painéis, cards, modais</div></div></div>
+    <div class="swatch"><div class="fill" style="background:#e2e8f0;border-radius:9999px"></div><div class="info"><div class="name">9999px</div><div class="value">badges, pills, avatar</div></div></div>
+  </div>
+
+  <h3>Elevação (sombra)</h3>
+  <table class="spec">
+    <tr><th>Token / uso</th><th>Valor</th></tr>
+    <tr><td><code>--sombra-padrao</code> — painéis</td><td><code>0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1)</code></td></tr>
+    <tr><td>KPI card</td><td><code>0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03)</code> (mais sutil)</td></tr>
+    <tr><td>Modal</td><td><code>0 20px 60px rgba(0,0,0,.25)</code></td></tr>
+    <tr><td>Dropdown</td><td><code>0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06)</code></td></tr>
+  </table>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Tipografia e espaçamento</span></footer>
+</section>
+
+<!-- ═══════════════════════ BOTÕES ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">02 · Componentes</div>
+  <h2>Botões</h2>
+  <p class="lede">Definidos em <code>src/styles/base.css</code> (<code>.btn-primary</code>) e <code>src/styles/components.css</code> (demais variantes). Use sempre a classe pronta — não recriar estilo de botão inline.</p>
+
+  <div class="demo-row">
+    <button class="btn-primary">Nova Ocorrência</button>
+    <button class="btn-secondary">Cancelar</button>
+    <button class="btn-success">Confirmar</button>
+    <button class="btn-outline">Abrir</button>
+    <button class="btn-outline-secondary">Voltar</button>
+    <button class="btn-disabled" disabled>Salvando...</button>
+  </div>
+
+  <table class="spec">
+    <tr><th>Classe</th><th>Quando usar</th></tr>
+    <tr><td><code>.btn-primary</code></td><td>Ação principal da tela (1 por contexto) — vermelho da marca</td></tr>
+    <tr><td><code>.btn-secondary</code></td><td>Ação neutra ao lado da primária (ex: "Cancelar")</td></tr>
+    <tr><td><code>.btn-success</code></td><td>Confirmação positiva explícita (raro — preferir <code>.btn-primary</code>)</td></tr>
+    <tr><td><code>.btn-outline</code> / <code>.btn-outline-secondary</code></td><td>Ações secundárias em listas/tabelas, links estilizados como botão</td></tr>
+    <tr><td><code>:disabled</code></td><td>Estado de carregamento/bloqueado — nunca remover o botão, desabilitar</td></tr>
+  </table>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Botões</span></footer>
+</section>
+
+<!-- ═══════════════════════ BADGES / STATUS ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">02 · Componentes</div>
+  <h2>Badges e indicadores de status</h2>
+  <p class="lede">Existem duas famílias com o mesmo propósito visual — usar a certa conforme o contexto para não divergir cores entre telas parecidas.</p>
+
+  <h3><code>.status-badge</code> — Produtos, Patrimônio, Doações (components.css)</h3>
+  <div class="demo-row">
+    <span class="badge pendente">Pendente</span>
+    <span class="badge urgente">Urgente</span>
+    <span class="badge arquivado">Arquivado</span>
+    <span class="badge validado">Validado</span>
+    <span class="badge rascunho">Rascunho</span>
+    <span class="badge inativo">Inativo</span>
+    <span class="badge manutencao">Em Manutenção</span>
+  </div>
+
+  <h3><code>.status-pill</code> — Ocorrências (Ocorrencias.css)</h3>
+  <div class="demo-row">
+    <span class="pill pendente">Pend. Validação</span>
+    <span class="pill urgente">Rascunho</span>
+    <span class="pill andamento">Em Andamento</span>
+    <span class="pill concluido">Arquivado</span>
+    <span class="pill cancelado">Cancelado</span>
+    <span class="pill pendarq">Pend. Arquivamento</span>
+  </div>
+
+  <div class="callout">Se um novo módulo precisar de status, prefira reaproveitar <code>.status-badge</code> (é o padrão mais usado) em vez de inventar uma terceira variante de badge.</div>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Badges e status</span></footer>
+</section>
+
+<!-- ═══════════════════════ CARDS ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">02 · Componentes</div>
+  <h2>Cards</h2>
+
+  <h3>KPI Card (<code>.kpi-card</code>) — usado em Dashboard e listagens</h3>
+  <div class="grid" style="max-width:520px">
+    <div class="kpi-card"><div class="kpi-icon" style="background:#fff7ed;color:#c2410c">⏱</div><div><div class="kpi-label">Pend. Validação</div><div class="kpi-value">12</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon" style="background:#f0fdf4;color:#16a34a">✓</div><div><div class="kpi-label">Validado</div><div class="kpi-value">48</div></div></div>
+  </div>
+
+  <h3>Painel (<code>.panel</code>)</h3>
+  <p class="lede" style="margin-bottom:6px">Container base para tabelas e seções — fundo <code>--cor-painel</code>, radius 12px, <code>--sombra-padrao</code>. É o "cartão" que envolve praticamente todo conteúdo de listagem no app.</p>
+
+  <h3>Sidebar (<code>components/Sidebar</code>)</h3>
+  <p class="lede" style="margin-bottom:8px">Único componente, importado uma vez em <code>App.js</code> — nunca duplicar sidebar em uma página específica.</p>
+  <div class="sidebar-demo">
+    <div class="sb-section-label">Sistema</div>
+    <div class="sb-item active">📋 Ocorrências</div>
+    <div class="sb-item">📦 Produtos</div>
+    <div class="sb-item">🏢 Patrimônio</div>
+    <div class="sb-section-label">Acesso Rápido</div>
+    <div class="sb-item">🏥 Hospitais</div>
+    <div class="sb-badge"><span>🚒</span><span><span class="t1">1º Corpo de Bombeiros</span><span class="t2">Corporação ativa</span></span></div>
+  </div>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Cards</span></footer>
+</section>
+
+<!-- ═══════════════════════ FORMULÁRIOS ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">02 · Componentes</div>
+  <h2>Formulários</h2>
+  <p class="lede">Padrão base em <code>.form-group</code> (components.css). <strong>Todo <code>&lt;label&gt;</code> deve ter <code>htmlFor</code> apontando pro <code>id</code> do campo</strong> — isso já foi motivo de correção de acessibilidade neste projeto (labels visuais sem associação real ao input).</p>
+
+  <div class="split">
+    <div class="form-demo">
+      <div class="field"><label>Nome Completo *</label><input placeholder="Ex: Maria Silva" /></div>
+      <div class="field"><label>Data de Nascimento *</label><input class="focused" value="15/03/1999" /></div>
+      <div class="field"><label>CPF *</label><input class="erro" value="123.456" /><div class="erro-msg">CPF inválido — informe os 11 dígitos.</div></div>
+    </div>
+    <div class="form-demo">
+      <div class="field"><label>Tipo de Ocorrência</label><select><option>Simplificado</option></select></div>
+      <h3 style="margin-top:0">Chips e toggle-cards</h3>
+      <div class="demo-row" style="margin-top:0">
+        <span class="toggle-card">Via pública</span>
+        <span class="toggle-card selected">✓ Rodovia</span>
+      </div>
+    </div>
+  </div>
+
+  <pre class="code-block">&lt;div className="form-group"&gt;
+  &lt;label htmlFor="data_ocorrencia"&gt;Data da Ocorrência *&lt;/label&gt;
+  &lt;input type="date" id="data_ocorrencia" value={...} onChange={...} /&gt;
+&lt;/div&gt;</pre>
+
+  <h3>Checklist de acessibilidade ao criar um formulário novo</h3>
+  <ul class="checklist">
+    <li>Todo <code>&lt;label&gt;</code> tem <code>htmlFor</code> = <code>id</code> do campo (campos repetidos em lista: gerar id único com o <code>uid</code> do item)</li>
+    <li>Botões só-ícone têm <code>aria-label</code> (fechar modal, remover item, buscar)</li>
+    <li><code>&lt;select&gt;</code> sem label visível tem <code>aria-label</code></li>
+    <li>Headings seguem ordem sequencial (h1→h2→h3...) mesmo quando conteúdo é condicional/por passo</li>
+    <li>Contraste de texto ≥ 4.5:1 — não usar <code>opacity</code> pra "suavizar" texto, usar uma cor com contraste já calculado</li>
+  </ul>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Formulários</span></footer>
+</section>
+
+<!-- ═══════════════════════ TABELAS, MODAIS, STEPPER ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">02 · Componentes</div>
+  <h2>Tabelas, modais e stepper</h2>
+
+  <h3>Tabela (<code>.data-table</code>)</h3>
+  <table class="data-demo">
+    <tr><th>Local</th><th>Tipo</th><th>Status</th></tr>
+    <tr><td>Almenara / Centro</td><td>Resgate</td><td><span class="pill urgente">Rascunho</span></td></tr>
+    <tr><td>BR-116, Km 42</td><td>Simplificado</td><td><span class="pill concluido">Arquivado</span></td></tr>
+  </table>
+
+  <h3>Modal (<code>.modal-container</code>)</h3>
+  <div class="modal-demo">
+    <div class="mh"><span>Nova Ocorrência</span><span>✕</span></div>
+    <div class="mb">Conteúdo do formulário multi-step vai aqui...</div>
+    <div class="mf"><button class="btn-secondary" style="padding:8px 16px;font-size:12px">Cancelar</button><button class="btn-primary" style="padding:8px 16px;font-size:12px">Avançar</button></div>
+  </div>
+
+  <h3>Stepper (formulário de 4 passos — Nova Ocorrência)</h3>
+  <div class="stepper-demo">
+    <div class="step done"><div class="step-num">✓</div><div class="step-label">Tipo</div></div>
+    <div class="step active"><div class="step-num">2</div><div class="step-label">Atendimento</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-label">Vítimas</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-label">Finalização</div></div>
+  </div>
+  <div class="callout">Cada passo (<code>.form-step</code>) só existe no DOM quando ativo (<code>display:none</code> nos demais). Atenção: isso significa que os headings dos outros passos <strong>não contam</strong> para a ordem de heading da página enquanto escondidos — todo passo precisa começar num heading que não pule nível a partir do título do modal.</div>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Tabelas, modais e stepper</span></footer>
+</section>
+
+<!-- ═══════════════════════ CONVENÇÕES DE CÓDIGO ═══════════════════════ -->
+<section>
+  <div class="doc-eyebrow">03 · Manutenção</div>
+  <h2>Convenções para alterações futuras</h2>
+
+  <h3>Onde mexer em cada coisa</h3>
+  <table class="spec">
+    <tr><th>Arquivo</th><th>Contém</th></tr>
+    <tr><td><code>src/styles/tokens.css</code></td><td>Única fonte de cores/variáveis — <code>:root</code> (claro) e <code>body.dark-mode</code> (escuro)</td></tr>
+    <tr><td><code>src/styles/base.css</code></td><td>Reset, layout principal, <code>.btn-primary</code>, utilitários (<code>.text-center</code> etc.)</td></tr>
+    <tr><td><code>src/styles/components.css</code></td><td>Componentes reutilizáveis entre páginas: botões, badges, tabelas, modais, formulário genérico</td></tr>
+    <tr><td><code>src/styles/dark-mode.css</code></td><td>Overrides pontuais de dark mode que não dá pra resolver só com variável</td></tr>
+    <tr><td><code>src/pages/&lt;Modulo&gt;/&lt;Modulo&gt;.css</code></td><td>Estilo exclusivo daquela página — não duplicar o que já existe em components.css</td></tr>
+    <tr><td><code>src/components/&lt;Nome&gt;/</code></td><td>Componente React reutilizável entre páginas (ex: Sidebar, StatCard)</td></tr>
+  </table>
+
+  <h3>Antes de adicionar uma cor nova</h3>
+  <ul class="checklist">
+    <li>Já existe um token parecido em <code>tokens.css</code>? Reaproveitar em vez de criar outro hex</li>
+    <li>Calcular contraste contra o fundo real onde o texto vai aparecer (não contra branco por padrão — cards coloridos, badges e sidebar têm fundos diferentes)</li>
+    <li>Se for variante "texto sobre fundo tingido" (ex: badge, link ativo), considerar um token <code>-texto</code> dedicado em vez de reusar a cor de marca/ícone direto (ver <code>--cor-primaria-texto</code>)</li>
+    <li>Definir também o valor equivalente em <code>body.dark-mode</code></li>
+  </ul>
+
+  <h3>Antes de abrir um PR de UI</h3>
+  <ul class="checklist">
+    <li><code>npm run build</code> local sem erros</li>
+    <li>Rodar Lighthouse (aba Accessibility) na página alterada, em todos os passos/estados relevantes (não só o estado inicial)</li>
+    <li>Conferir modo claro e escuro</li>
+    <li>Se mexeu em <code>tokens.css</code> ou <code>components.css</code>: o efeito é global — checar outras páginas que usam a mesma classe/variável</li>
+  </ul>
+
+  <div class="callout">Este documento é gerado a partir do código real (<code>src/styles/*.css</code>) — se um valor aqui divergir do código, o código é a fonte da verdade. Atualize este arquivo (<code>docs/style-guide.html</code>) e re-exporte o PDF sempre que os tokens principais mudarem.</div>
+
+  <footer class="pagefoot"><span>SisGera — Guia de Estilo</span><span>Convenções de manutenção</span></footer>
+</section>
+
+</body>
+</html>
