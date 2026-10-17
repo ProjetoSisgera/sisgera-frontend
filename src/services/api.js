@@ -1,8 +1,8 @@
 // src/services/api.js
 // Camada de serviço centralizada para comunicação com a API
 
-const BASE_URL = process.env.REACT_APP_AUTH_API_URL || 'http://localhost:3001';
-const OCCURRENCE_URL = process.env.REACT_APP_OCCURRENCE_API_URL || 'http://localhost:3003';
+const BASE_URL = process.env.REACT_APP_AUTH_API_URL || 'http://localhost:3000';
+const OCCURRENCE_URL = process.env.REACT_APP_OCCURRENCE_API_URL || 'http://localhost:3002';
 const INVENTORY_URL = process.env.REACT_APP_INVENTORY_API_URL || 'http://localhost:3004';
 
 export const TOKEN_KEY = '@sisgera:accessToken';

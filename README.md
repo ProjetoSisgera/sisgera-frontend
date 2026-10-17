@@ -41,15 +41,30 @@ Os arquivos gerados ficam na pasta `build/`.
 
 ## Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto (ou use os valores padrão):
+Copie o `.env.example` para `.env` (ou use os valores padrão):
 
 ```env
-REACT_APP_AUTH_API_URL=http://localhost:3001
-REACT_APP_OCCURRENCE_API_URL=http://localhost:3003
+REACT_APP_AUTH_API_URL=http://localhost:3000
+REACT_APP_OCCURRENCE_API_URL=http://localhost:3002
 REACT_APP_INVENTORY_API_URL=http://localhost:3004
 ```
 
 > Se o arquivo `.env` não existir, o frontend utiliza as URLs padrão definidas em `src/services/api.js`.
+>
+> As variáveis `REACT_APP_*` são embutidas no JavaScript no momento do build e ficam visíveis no navegador. **Nunca coloque segredos nelas** (senhas, tokens, credenciais de banco). Só URLs públicas.
+
+## Deploy (Railway)
+
+O frontend roda no mesmo projeto do Railway que o backend (`sisgera`), com dois ambientes:
+
+| Ambiente | Branch |
+|---|---|
+| `homolog` | `homolog` |
+| `production` | `production` |
+
+O push em uma dessas branches faz o deploy automático no ambiente correspondente. As variáveis `REACT_APP_*` são preenchidas pelo Railway com os domínios das APIs do mesmo ambiente, e o backend libera o CORS para o domínio do frontend. Nada disso precisa ser configurado à mão.
+
+A configuração do serviço fica no repositório do backend, em `sisgera-api/.railway/railway.ts`.
 
 ## Estrutura das páginas
 

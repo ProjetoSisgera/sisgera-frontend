@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
@@ -115,7 +114,6 @@ function App() {
 
   return (
     <AuthProvider>
-      <SpeedInsights />
       <Router>
         <Routes>
 

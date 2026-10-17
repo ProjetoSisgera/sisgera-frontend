@@ -10,7 +10,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "@vercel/speed-insights": "^2.0.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^7.18.1",
@@ -32,8 +31,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js",
-      "^@vercel/speed-insights/react$": "<rootDir>/node_modules/@vercel/speed-insights/dist/react/index.js"
+      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js"
     }
   },
   "browserslist": {
@@ -47,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
