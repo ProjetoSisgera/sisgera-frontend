@@ -12,6 +12,16 @@ function getInitials(nome) {
   return nome.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
 }
 
+// Mesma regra da API: 8 a 72 caracteres, com ao menos uma letra e um número.
+const REGRA_SENHA = 'Mínimo de 8 caracteres, com letra e número.';
+
+function validarSenha(senha) {
+  if (senha.length < 8) return 'A senha deve ter no mínimo 8 caracteres.';
+  if (senha.length > 72) return 'A senha deve ter no máximo 72 caracteres.';
+  if (!/[A-Za-z]/.test(senha) || !/\d/.test(senha)) return 'A senha deve ter ao menos uma letra e um número.';
+  return '';
+}
+
 export default function Usuarios() {
   const { selectedCorporacao } = useAuth();
   const { canManageUsers } = usePermissions();
@@ -111,6 +121,11 @@ export default function Usuarios() {
       setAddError('Preencha todos os campos obrigatórios.');
       return;
     }
+    const erroSenha = validarSenha(addForm.senha);
+    if (erroSenha) {
+      setAddError(erroSenha);
+      return;
+    }
     setAddLoading(true);
     setAddError('');
     try {
@@ -141,6 +156,11 @@ export default function Usuarios() {
     e.preventDefault();
     if (!editForm.nome.trim() || !editForm.email.trim()) {
       setEditError('Nome e e-mail são obrigatórios.');
+      return;
+    }
+    const erroSenha = editForm.senha ? validarSenha(editForm.senha) : '';
+    if (erroSenha) {
+      setEditError(erroSenha);
       return;
     }
     setEditLoading(true);
@@ -434,10 +454,10 @@ export default function Usuarios() {
                     placeholder="usuario@email.com" disabled={addLoading} />
                 </div>
                 <div className="form-field">
-                  <label>Senha *</label>
+                  <label>Senha * <span style={{ fontWeight: 400, textTransform: 'none' }}>({REGRA_SENHA})</span></label>
                   <input type="password" name="senha" value={addForm.senha}
                     onChange={e => setAddForm(p => ({ ...p, senha: e.target.value }))}
-                    placeholder="Senha inicial" disabled={addLoading} />
+                    placeholder="Senha inicial" autoComplete="new-password" disabled={addLoading} />
                 </div>
                 <div className="form-field">
                   <label>Perfil *</label>
@@ -488,10 +508,10 @@ export default function Usuarios() {
                     disabled={editLoading} />
                 </div>
                 <div className="form-field">
-                  <label>Nova Senha <span style={{ fontWeight: 400, textTransform: 'none' }}>(deixe vazio para manter)</span></label>
+                  <label>Nova Senha <span style={{ fontWeight: 400, textTransform: 'none' }}>(deixe vazio para manter. {REGRA_SENHA})</span></label>
                   <input type="password" value={editForm.senha}
                     onChange={e => setEditForm(p => ({ ...p, senha: e.target.value }))}
-                    placeholder="••••••••" disabled={editLoading} />
+                    placeholder="••••••••" autoComplete="new-password" disabled={editLoading} />
                 </div>
                 <div className="form-field">
                   <label>Perfil</label>
