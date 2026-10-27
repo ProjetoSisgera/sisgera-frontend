@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi, corporacaoApi, setTokens, clearTokens, getToken, decodeJwt } from '../services/api';
+import { limparRascunhos } from '../hooks/useAutoSave';
 
 const AuthContext = createContext(null);
 
@@ -56,6 +57,9 @@ export function AuthProvider({ children }) {
       setUser(null);
       setSelectedCorporacao(null);
       localStorage.removeItem('@sisgera:selectedCorporacao');
+      // O rascunho fica: a sessão pode cair no meio do preenchimento, e o
+      // usuário continua de onde parou ao entrar de novo. Se outra pessoa
+      // entrar, o login dela apaga.
     };
     window.addEventListener('sisgera:session-expired', handler);
     return () => window.removeEventListener('sisgera:session-expired', handler);
@@ -80,6 +84,9 @@ export function AuthProvider({ children }) {
 
     // Limpa corporação armazenada para evitar usar dados de sessão anterior inválida
     selectCorporacao(null);
+
+    // Apaga rascunhos que outro usuário deixou neste navegador sem fazer logout
+    limparRascunhos(payload?.sub);
 
     // Para usuários não-admin, auto-seleciona a corporação via idCorporacao do JWT
     if (!isAdmin && payload?.idCorporacao) {
@@ -107,6 +114,7 @@ export function AuthProvider({ children }) {
     }
     clearTokens();
     localStorage.removeItem('@sisgera:selectedCorporacao');
+    limparRascunhos();
     setUser(null);
     setSelectedCorporacao(null);
   }, []);

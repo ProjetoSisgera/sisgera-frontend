@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Ocorrencias.css';
-import useAutoSave from '../../hooks/useAutoSave';
+import useAutoSave, { chaveRascunho } from '../../hooks/useAutoSave';
 import { ocorrenciaApi, vitimaApi, veiculoOcorrenciaApi, hospitalApi, usuarioApi } from '../../services/api';
 
 // ── Enums mapeados do backend ──────────────────────────────────────────────
@@ -225,7 +225,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
     const restoreLock = useRef(false);
 
     const draftState = { currentStep, selectedBoType, formData, vitimas, veiculos };
-    const { clearDraft, getDraft } = useAutoSave('sisgera_draft_ocorrencia', draftState, isOpen && isInitialized);
+    const { clearDraft, getDraft } = useAutoSave(chaveRascunho('ocorrencia', idResponsavel), draftState, isOpen && isInitialized);
 
     const resetForm = useCallback(() => {
         setCurrentStep(1);

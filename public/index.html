@@ -2,6 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!--
+      Content Security Policy: o navegador só carrega scripts do próprio site e
+      só deixa a página conversar com ele, com as 3 APIs e com o ViaCEP. Se um
+      dia alguém conseguir injetar código na página, ele não consegue carregar
+      script de fora nem mandar o token para outro servidor.
+      As URLs das APIs vêm das REACT_APP_* no build (em dev, do .env.development).
+      O build precisa de INLINE_RUNTIME_CHUNK=false (.env.production), senão o
+      CRA coloca um script inline aqui e o script-src 'self' bloqueia.
+      style-src aceita 'unsafe-inline' porque o Font Awesome injeta um <style>.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' %REACT_APP_AUTH_API_URL% %REACT_APP_OCCURRENCE_API_URL% %REACT_APP_INVENTORY_API_URL% https://viacep.com.br; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
