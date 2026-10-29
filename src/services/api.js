@@ -122,8 +122,13 @@ export const authApi = {
       body: JSON.stringify({ email, senha }),
     }),
 
+  // Envia o refresh token para a API revogá-lo; sem isso ele continuaria
+  // valendo por até 7 dias depois do logout.
   logout: () =>
-    request('/auth/logout', { method: 'POST' }),
+    request('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken: getRefreshToken() }),
+    }),
 
   refresh: (refreshToken) =>
     request('/auth/refresh', {
