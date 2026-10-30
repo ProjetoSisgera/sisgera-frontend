@@ -74,10 +74,10 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = useCallback(async (email, senha) => {
-    const data = await authApi.login(email, senha);
-    setTokens(data.accessToken, data.refreshToken);
-    const payload = decodeJwt(data.accessToken);
+  // Recebe os tokens que a API só entrega depois do MFA e abre a sessão
+  const concluirLogin = useCallback(async ({ accessToken, refreshToken }) => {
+    setTokens(accessToken, refreshToken);
+    const payload = decodeJwt(accessToken);
     setUser(payload);
 
     const isAdmin = isAdminPayload(payload);
@@ -106,6 +106,34 @@ export function AuthProvider({ children }) {
     return { payload, isAdmin };
   }, [selectCorporacao]);
 
+  // Só confere a senha: devolve { etapa: 'mfa' | 'cadastro_mfa', mfaToken }.
+  // O mfaToken fica no estado da tela de login, nunca no localStorage.
+  const login = useCallback(async (email, senha) => {
+    const { etapa, mfaToken } = await authApi.login(email, senha);
+    return { etapa, mfaToken };
+  }, []);
+
+  const verificarMfa = useCallback(async (mfaToken, codigo) => {
+    const tokens = await authApi.mfaVerificar(mfaToken, codigo);
+    return concluirLogin(tokens);
+  }, [concluirLogin]);
+
+  const iniciarCadastroMfa = useCallback(
+    (mfaToken) => authApi.mfaIniciarCadastro(mfaToken),
+    []
+  );
+
+  // A sessão só abre em `concluir`, depois de a pessoa guardar os códigos de
+  // recuperação: abrir antes faria a tela de login redirecionar na hora.
+  const confirmarCadastroMfa = useCallback(async (mfaToken, codigo) => {
+    const { codigosRecuperacao, accessToken, refreshToken } =
+      await authApi.mfaConfirmarCadastro(mfaToken, codigo);
+    return {
+      codigosRecuperacao,
+      concluir: () => concluirLogin({ accessToken, refreshToken }),
+    };
+  }, [concluirLogin]);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -127,6 +155,9 @@ export function AuthProvider({ children }) {
       isAdmin: isAdminPayload(user),
       selectedCorporacao,
       login,
+      verificarMfa,
+      iniciarCadastroMfa,
+      confirmarCadastroMfa,
       logout,
       selectCorporacao,
     }}>

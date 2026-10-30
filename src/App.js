@@ -34,6 +34,8 @@ import {
   faLock, faEyeSlash, faArrowRightFromBracket, faBuilding, faKey,
   faChartBar, faClock, faHospital,
   faFilePen, faHourglassHalf, faChevronRight,
+  // MFA
+  faMobileScreen, faCopy, faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -47,6 +49,7 @@ library.add(
   faLock, faEyeSlash, faArrowRightFromBracket, faBuilding, faKey,
   faChartBar, faClock, faHospital,
   faFilePen, faHourglassHalf, faChevronRight,
+  faMobileScreen, faCopy, faDownload,
 );
 
 const PAGE_TITLES = {

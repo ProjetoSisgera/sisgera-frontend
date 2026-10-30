@@ -59,6 +59,11 @@ export default function Usuarios() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  // ── Modal: Resetar MFA ───────────────────────────────────────────────────
+  const [resetMfaTarget, setResetMfaTarget] = useState(null);
+  const [resetMfaLoading, setResetMfaLoading] = useState(false);
+  const [resetMfaError, setResetMfaError] = useState('');
+
   // ── Modal: Gerenciar Perfis ──────────────────────────────────────────────
   const [showPerfilModal, setShowPerfilModal] = useState(false);
   const [newPerfilDesc, setNewPerfilDesc] = useState('');
@@ -207,6 +212,22 @@ export default function Usuarios() {
       setDeleteError(err.message || 'Erro ao remover usuário.');
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  // ── Resetar MFA ──────────────────────────────────────────────────────────
+  const handleResetMfaConfirm = async () => {
+    if (!resetMfaTarget) return;
+    setResetMfaLoading(true);
+    setResetMfaError('');
+    try {
+      await usuarioApi.resetarMfa(resetMfaTarget.idUsuario);
+      setResetMfaTarget(null);
+      await loadData();
+    } catch (err) {
+      setResetMfaError(err.message || 'Erro ao resetar o MFA.');
+    } finally {
+      setResetMfaLoading(false);
     }
   };
 
@@ -416,6 +437,14 @@ export default function Usuarios() {
                     </td>
                     <td>
                       <span className="status-badge ativo">{getPerfilNome(u.idPerfil)}</span>
+                      {u.mfaAtivo === false && (
+                        <span
+                          className="status-badge pendente mfa-pendente-badge"
+                          title="O usuário vai configurar o MFA no próximo login."
+                        >
+                          MFA pendente
+                        </span>
+                      )}
                     </td>
                     {canManageUsers && (
                       <td className="actions-cell text-right">
@@ -427,6 +456,17 @@ export default function Usuarios() {
                         >
                           <FontAwesomeIcon icon="pencil" />
                         </button>
+                        {/* Vale para o próprio usuário também: é como se troca de celular */}
+                        {u.mfaAtivo && (
+                          <button
+                            type="button"
+                            className="action-btn-minimal"
+                            title="Resetar MFA"
+                            onClick={() => { setResetMfaError(''); setResetMfaTarget(u); }}
+                          >
+                            <FontAwesomeIcon icon="mobile-screen" />
+                          </button>
+                        )}
                         {!ehProprioUsuario(u) && (
                           <button
                             type="button"
@@ -571,6 +611,33 @@ export default function Usuarios() {
               <button type="button" className="btn-secondary" onClick={() => setDeleteTarget(null)}>Cancelar</button>
               <button type="button" className="btn-danger" onClick={handleDeleteConfirm} disabled={deleteLoading}>
                 {deleteLoading ? <><FontAwesomeIcon icon="sync" spin /> Removendo...</> : 'Remover'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Resetar MFA ── */}
+      {resetMfaTarget && (
+        <div className="modal-backdrop" onClick={() => setResetMfaTarget(null)}>
+          <div className="modal modal--delete" onClick={e => e.stopPropagation()}>
+            <div className="modal__header">
+              <h3>Resetar MFA</h3>
+              <button className="modal__close" onClick={() => setResetMfaTarget(null)}>
+                <FontAwesomeIcon icon="xmark" />
+              </button>
+            </div>
+            <div className="modal__body">
+              {resetMfaError && <div className="modal-error"><FontAwesomeIcon icon="triangle-exclamation" />{resetMfaError}</div>}
+              <p>
+                Tem certeza que deseja resetar o MFA de <strong>{resetMfaTarget.nome}</strong>? O aplicativo autenticador
+                e os códigos de recuperação atuais deixam de valer, e o MFA será configurado de novo no próximo login.
+              </p>
+            </div>
+            <div className="modal__footer">
+              <button type="button" className="btn-secondary" onClick={() => setResetMfaTarget(null)}>Cancelar</button>
+              <button type="button" className="btn-danger" onClick={handleResetMfaConfirm} disabled={resetMfaLoading}>
+                {resetMfaLoading ? <><FontAwesomeIcon icon="sync" spin /> Resetando...</> : 'Resetar'}
               </button>
             </div>
           </div>

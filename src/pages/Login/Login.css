@@ -308,6 +308,172 @@
   margin-top: 36px;
 }
 
+/* ---- Etapas do MFA ---- */
+.login-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-texto-principal);
+  letter-spacing: 0.2px;
+}
+
+.login-texto {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--cor-texto-secundario);
+  margin: 0;
+}
+
+.login-passos {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--cor-texto-secundario);
+}
+
+.login-passos li + li {
+  margin-top: 4px;
+}
+
+/* Fundo branco também no dark mode: o leitor do app precisa de contraste */
+.login-qr {
+  align-self: center;
+  background: #fff;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--cor-borda);
+  line-height: 0;
+}
+
+.login-qr img {
+  width: 184px;
+  height: 184px;
+}
+
+.login-chave {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-fundo);
+}
+
+.login-chave code {
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--cor-texto-principal);
+  word-break: break-all;
+}
+
+.login-input-wrapper input.login-input--codigo {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 18px;
+  letter-spacing: 4px;
+}
+
+.login-codigos {
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-fundo);
+}
+
+.login-codigos code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  color: var(--cor-texto-principal);
+  letter-spacing: 1px;
+}
+
+.login-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.login-acoes .login-btn-secundario {
+  flex: 1;
+}
+
+.login-btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--cor-painel);
+  color: var(--cor-texto-principal);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.login-btn-secundario:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.login-btn-secundario--pequeno {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.login-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--cor-texto-principal);
+  cursor: pointer;
+}
+
+.login-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cor-primaria);
+  cursor: pointer;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.login-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-primaria);
+  cursor: pointer;
+}
+
+.login-link:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.login-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ---- Animações ---- */
 @keyframes login-slide-down {
   from { opacity: 0; transform: translateY(-6px); }
@@ -342,6 +508,27 @@ body.dark-mode .login-input-wrapper input:focus {
 
 body.dark-mode .login-input-wrapper input::placeholder {
   color: #64748b;
+}
+
+body.dark-mode .login-chave,
+body.dark-mode .login-codigos {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-mode .login-btn-secundario {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-mode .login-btn-secundario:hover {
+  border-color: var(--cor-primaria);
+  color: #fca5a5;
+}
+
+body.dark-mode .login-link {
+  color: #f87171;
 }
 
 /* ---- Responsividade ---- */

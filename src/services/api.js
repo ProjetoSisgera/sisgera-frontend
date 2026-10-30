@@ -75,8 +75,11 @@ async function parseResponse(res) {
   return text ? JSON.parse(text) : null;
 }
 
-async function request(path, options = {}, baseUrl = BASE_URL) {
-  const token = getToken();
+// `publica`: rotas de login e MFA. Um 401 nelas é a resposta (senha ou código
+// errado, mfaToken expirado), não sessão vencida, então não tenta o refresh e
+// a mensagem da API chega à tela.
+async function request(path, { publica = false, ...options } = {}, baseUrl = BASE_URL) {
+  const token = publica ? null : getToken();
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -85,7 +88,7 @@ async function request(path, options = {}, baseUrl = BASE_URL) {
 
   let response = await fetch(`${baseUrl}${path}`, { ...options, headers });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !publica) {
     try {
       const newToken = await tryRefreshToken();
       response = await fetch(`${baseUrl}${path}`, {
@@ -116,10 +119,35 @@ const inv = (path, options = {}) => request(path, options, INVENTORY_URL);
 
 // Endpoints de autenticação
 export const authApi = {
+  // Com a senha certa devolve { etapa: 'mfa' | 'cadastro_mfa', mfaToken };
+  // os tokens só vêm depois do código.
   login: (email, senha) =>
     request('/auth/login', {
       method: 'POST',
+      publica: true,
       body: JSON.stringify({ email, senha }),
+    }),
+
+  mfaIniciarCadastro: (mfaToken) =>
+    request('/auth/mfa/cadastro/iniciar', {
+      method: 'POST',
+      publica: true,
+      body: JSON.stringify({ mfaToken }),
+    }),
+
+  mfaConfirmarCadastro: (mfaToken, codigo) =>
+    request('/auth/mfa/cadastro/confirmar', {
+      method: 'POST',
+      publica: true,
+      body: JSON.stringify({ mfaToken, codigo }),
+    }),
+
+  // `codigo` é o TOTP de 6 dígitos ou um código de recuperação (XXXX-XXXX)
+  mfaVerificar: (mfaToken, codigo) =>
+    request('/auth/mfa/verificar', {
+      method: 'POST',
+      publica: true,
+      body: JSON.stringify({ mfaToken, codigo }),
     }),
 
   // Envia o refresh token para a API revogá-lo; sem isso ele continuaria
@@ -159,6 +187,13 @@ export const usuarioApi = {
   delete: (idUsuario, idCorporacao) =>
     request(`/usuario/deleteUsuario?idUsuario=${idUsuario}&idCorporacao=${idCorporacao}`, {
       method: 'DELETE',
+    }),
+
+  // Apaga o MFA do usuário; ele configura de novo no próximo login
+  resetarMfa: (idUsuario) =>
+    request('/usuario/resetarMfa', {
+      method: 'PUT',
+      body: JSON.stringify({ idUsuario }),
     }),
 };
 
