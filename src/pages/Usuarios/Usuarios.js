@@ -28,6 +28,14 @@ export default function Usuarios() {
   // Perfil global (sem corporação) vale para todas: só o usuário global altera.
   const usuarioGlobal = user?.idCorporacao === null;
   const podeAlterarPerfil = (perfil) => usuarioGlobal || perfil.idCorporacao !== null;
+  // Ninguém se exclui nem troca o próprio perfil (a API também recusa).
+  const ehProprioUsuario = (u) => u.idUsuario === user?.sub;
+  // Gerenciar corporação, usuários e perfis é só dos perfis globais: perfil da
+  // corporação é de operação e nem oferece essas permissões (a API recusa).
+  const ehPermissaoDeGerencia = (perm) =>
+    perm.entidade === 'Corporacao' ||
+    perm.entidade === 'Perfil' ||
+    (perm.entidade === 'Usuario' && perm.acao !== 'Visualizar');
 
   const [usuarios, setUsuarios] = useState([]);
   const [perfis, setPerfis] = useState([]);
@@ -290,7 +298,13 @@ export default function Usuarios() {
       const assignedSet = new Set(
         assignedList.map(ap => ap.idPermissao ?? ap.permissao?.idPermissao).filter(Boolean)
       );
-      setAllPermissoes(todasPermissoes);
+      setAllPermissoes(
+        todasPermissoes.filter(perm =>
+          // Corporação é só do Superusuário: não se atribui pelo modal.
+          perm.entidade !== 'Corporacao' &&
+          (perfil.idCorporacao === null || !ehPermissaoDeGerencia(perm))
+        )
+      );
       setOriginalPermIds(new Set(assignedSet));
       setPendingPermIds(new Set(assignedSet));
     } catch (err) {
@@ -413,14 +427,16 @@ export default function Usuarios() {
                         >
                           <FontAwesomeIcon icon="pencil" />
                         </button>
-                        <button
-                          type="button"
-                          className="action-btn-minimal delete"
-                          title="Remover usuário"
-                          onClick={() => { setDeleteError(''); setDeleteTarget(u); }}
-                        >
-                          <FontAwesomeIcon icon="trash" />
-                        </button>
+                        {!ehProprioUsuario(u) && (
+                          <button
+                            type="button"
+                            className="action-btn-minimal delete"
+                            title="Remover usuário"
+                            onClick={() => { setDeleteError(''); setDeleteTarget(u); }}
+                          >
+                            <FontAwesomeIcon icon="trash" />
+                          </button>
+                        )}
                       </td>
                     )}
                   </tr>
@@ -520,7 +536,8 @@ export default function Usuarios() {
                   <label>Perfil</label>
                   <select value={editForm.idPerfil}
                     onChange={e => setEditForm(p => ({ ...p, idPerfil: e.target.value }))}
-                    disabled={editLoading}>
+                    disabled={editLoading || ehProprioUsuario(editTarget)}
+                    title={ehProprioUsuario(editTarget) ? 'Você não pode alterar o próprio perfil.' : undefined}>
                     {perfis.map(p => <option key={p.idPerfil} value={p.idPerfil}>{p.descricao}</option>)}
                   </select>
                 </div>
