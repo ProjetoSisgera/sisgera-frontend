@@ -23,8 +23,11 @@ function validarSenha(senha) {
 }
 
 export default function Usuarios() {
-  const { selectedCorporacao } = useAuth();
+  const { selectedCorporacao, user } = useAuth();
   const { canManageUsers } = usePermissions();
+  // Perfil global (sem corporação) vale para todas: só o usuário global altera.
+  const usuarioGlobal = user?.idCorporacao === null;
+  const podeAlterarPerfil = (perfil) => usuarioGlobal || perfil.idCorporacao !== null;
 
   const [usuarios, setUsuarios] = useState([]);
   const [perfis, setPerfis] = useState([]);
@@ -606,17 +609,24 @@ export default function Usuarios() {
                         /* Visualização normal */
                         <>
                           <FontAwesomeIcon icon="users" className="perfil-item__icon" />
-                          <span className="perfil-item__name">{p.descricao}</span>
+                          <span className="perfil-item__name">
+                            {p.descricao}
+                            {p.idCorporacao === null && <span className="perfil-item__tag">Global</span>}
+                          </span>
                           <div className="perfil-item__actions">
-                            <button type="button" className="action-btn-minimal" title="Permissões" onClick={() => openPermModal(p)}>
+                            <button type="button" className="action-btn-minimal" title={podeAlterarPerfil(p) ? 'Permissões' : 'Ver permissões'} onClick={() => openPermModal(p)}>
                               <FontAwesomeIcon icon="key" />
                             </button>
-                            <button type="button" className="action-btn-minimal" title="Editar" onClick={() => startEditPerfil(p)}>
-                              <FontAwesomeIcon icon="pencil" />
-                            </button>
-                            <button type="button" className="action-btn-minimal delete" title="Excluir" onClick={() => handlePerfilDelete(p)}>
-                              <FontAwesomeIcon icon="trash" />
-                            </button>
+                            {podeAlterarPerfil(p) && (
+                              <>
+                                <button type="button" className="action-btn-minimal" title="Editar" onClick={() => startEditPerfil(p)}>
+                                  <FontAwesomeIcon icon="pencil" />
+                                </button>
+                                <button type="button" className="action-btn-minimal delete" title="Excluir" onClick={() => handlePerfilDelete(p)}>
+                                  <FontAwesomeIcon icon="trash" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </>
                       )}
@@ -670,6 +680,13 @@ export default function Usuarios() {
             <div className="modal__body">
               {permError && <div className="modal-error" style={{ marginBottom: 12 }}><FontAwesomeIcon icon="triangle-exclamation" />{permError}</div>}
 
+              {!podeAlterarPerfil(permModal.perfil) && (
+                <p className="perm-readonly">
+                  <FontAwesomeIcon icon="lock" />
+                  Perfil global: vale para todas as corporações e só o administrador do sistema pode alterar.
+                </p>
+              )}
+
               {permLoading ? (
                 <div style={{ textAlign: 'center', padding: '24px', color: 'var(--texto-secundario)' }}>
                   <FontAwesomeIcon icon="sync" spin style={{ marginRight: 8 }} />
@@ -695,7 +712,7 @@ export default function Usuarios() {
                             type="checkbox"
                             checked={pendingPermIds.has(perm.idPermissao)}
                             onChange={() => togglePerm(perm.idPermissao)}
-                            disabled={permSaving}
+                            disabled={permSaving || !podeAlterarPerfil(permModal.perfil)}
                           />
                           <span>{perm.acao}</span>
                         </label>
@@ -706,12 +723,20 @@ export default function Usuarios() {
               )}
             </div>
             <div className="modal__footer">
-              <button type="button" className="btn-secondary" onClick={() => { setPermModal(null); setPermError(''); }} disabled={permSaving}>
-                Cancelar
-              </button>
-              <button type="button" className="btn-primary" onClick={handlePermSave} disabled={permLoading || permSaving}>
-                {permSaving ? <><FontAwesomeIcon icon="sync" spin /> Salvando...</> : 'Salvar'}
-              </button>
+              {podeAlterarPerfil(permModal.perfil) ? (
+                <>
+                  <button type="button" className="btn-secondary" onClick={() => { setPermModal(null); setPermError(''); }} disabled={permSaving}>
+                    Cancelar
+                  </button>
+                  <button type="button" className="btn-primary" onClick={handlePermSave} disabled={permLoading || permSaving}>
+                    {permSaving ? <><FontAwesomeIcon icon="sync" spin /> Salvando...</> : 'Salvar'}
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="btn-secondary" onClick={() => { setPermModal(null); setPermError(''); }}>
+                  Fechar
+                </button>
+              )}
             </div>
           </div>
         </div>
