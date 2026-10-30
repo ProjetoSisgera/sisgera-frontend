@@ -1,7 +1,9 @@
 // src/contexts/AuthContext.js
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authApi, corporacaoApi, setTokens, clearTokens, getToken, decodeJwt } from '../services/api';
+import {
+  authApi, corporacaoApi, setTokens, clearTokens, getToken, getRefreshToken, decodeJwt, tryRefreshToken,
+} from '../services/api';
 import { limparRascunhos } from '../hooks/useAutoSave';
 
 const AuthContext = createContext(null);
@@ -26,10 +28,23 @@ export function AuthProvider({ children }) {
 
   // Inicializa o estado de auth a partir do token armazenado
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      const payload = decodeJwt(token);
-      if (payload && payload.exp * 1000 > Date.now()) {
+    // Access token vencido não encerra a sessão: o refresh token ainda pode
+    // valer, e sem ele a pessoa teria de passar pelo MFA de novo.
+    const sessaoAtual = async () => {
+      const payload = decodeJwt(getToken());
+      if (payload && payload.exp * 1000 > Date.now()) return payload;
+      if (!getRefreshToken()) return null;
+      try {
+        return decodeJwt(await tryRefreshToken());
+      } catch {
+        return null;
+      }
+    };
+
+    let cancelado = false;
+    sessaoAtual().then(payload => {
+      if (cancelado) return;
+      if (payload) {
         setUser(payload);
 
         // Para não-admins, garante que a corporação armazenada bate com o JWT
@@ -42,13 +57,14 @@ export function AuthProvider({ children }) {
             return prev;
           });
         }
-      } else {
+      } else if (getToken() || getRefreshToken()) {
         clearTokens();
         localStorage.removeItem('@sisgera:selectedCorporacao');
         setSelectedCorporacao(null);
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    });
+    return () => { cancelado = true; };
   }, []);
 
   // Desloga automaticamente quando o refresh token também expirar

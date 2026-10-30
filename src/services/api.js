@@ -46,7 +46,7 @@ export function decodeJwt(token) {
 
 let _refreshingPromise = null;
 
-async function tryRefreshToken() {
+export async function tryRefreshToken() {
   if (_refreshingPromise) return _refreshingPromise;
 
   _refreshingPromise = (async () => {
