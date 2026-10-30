@@ -17,6 +17,7 @@ import CadastrarPatrimonio from './pages/Patrimonial/CadastrarPatrimonio';
 import Doacoes from './pages/Doacoes/Doacoes';
 import IncluirDoacao from './pages/Doacoes/IncluirDoacao';
 import Usuarios from './pages/Usuarios/Usuarios';
+import Auditoria from './pages/Auditoria/Auditoria';
 import AdminCorporacao from './pages/AdminCorporacao/AdminCorporacao';
 import Hospitais from './pages/Hospitais/Hospitais';
 
@@ -64,6 +65,7 @@ const PAGE_TITLES = {
   '/produtos/cadastrar': 'Cadastrar Produto',
   '/usuarios': 'Usuários',
   '/hospitais': 'Hospitais',
+  '/auditoria': 'Auditoria',
   '/manual': 'Manual',
   '/admin/corporacoes': 'Corporações',
 };
@@ -143,6 +145,7 @@ function App() {
               <Route path="/doacoes/incluir" element={<IncluirDoacao />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/hospitais" element={<Hospitais />} />
+              <Route path="/auditoria" element={<Auditoria />} />
               <Route path="/manual" element={<h1 className="main-content">Manual de Instruções — Em Breve</h1>} />
 
               {/* Rotas exclusivas para administradores do sistema */}

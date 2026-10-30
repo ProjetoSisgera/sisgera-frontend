@@ -30,11 +30,13 @@ export default function Usuarios() {
   const podeAlterarPerfil = (perfil) => usuarioGlobal || perfil.idCorporacao !== null;
   // Ninguém se exclui nem troca o próprio perfil (a API também recusa).
   const ehProprioUsuario = (u) => u.idUsuario === user?.sub;
-  // Gerenciar corporação, usuários e perfis é só dos perfis globais: perfil da
-  // corporação é de operação e nem oferece essas permissões (a API recusa).
+  // Gerenciar corporação, usuários e perfis, e ver a auditoria, é só dos perfis
+  // globais: perfil da corporação é de operação e nem oferece essas permissões
+  // (a API recusa).
   const ehPermissaoDeGerencia = (perm) =>
     perm.entidade === 'Corporacao' ||
     perm.entidade === 'Perfil' ||
+    perm.entidade === 'Audit' ||
     (perm.entidade === 'Usuario' && perm.acao !== 'Visualizar');
 
   const [usuarios, setUsuarios] = useState([]);

@@ -23,6 +23,9 @@ const corpAdminItems = [
     { name: 'Hospitais',     icon: 'hospital',            path: '/hospitais' },
 ];
 
+// Só para quem tem a permissão de ver a auditoria
+const auditoriaItem = { name: 'Auditoria', icon: 'clock', path: '/auditoria' };
+
 // Itens do painel de controle admin
 const adminItems = [
     { name: 'Corporações',   icon: 'building',            path: '/admin/corporacoes' },
@@ -30,7 +33,9 @@ const adminItems = [
 
 const Sidebar = ({ isOpen, onClose }) => {
     const { user, logout, selectedCorporacao } = useAuth();
-    const { isAdmin, canManageUsers } = usePermissions();
+    const { isAdmin, canManageUsers, has } = usePermissions();
+    // Auditoria: Coordenador Geral (só a corporação dele) e Superusuário
+    const podeVerAuditoria = has('Audit', 'Visualizar');
     const navigate = useNavigate();
     const location = useLocation();
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -141,11 +146,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </ul>
 
                         {/* Seção de Administração da Corporação — só para Coordenador/Admin */}
-                        {canManageUsers && (
+                        {(canManageUsers || podeVerAuditoria) && (
                             <>
                                 <div className="sidebar-section-label">Administração</div>
                                 <ul>
-                                    {corpAdminItems.map((item) => (
+                                    {[
+                                        ...(canManageUsers ? corpAdminItems : []),
+                                        ...(podeVerAuditoria ? [auditoriaItem] : []),
+                                    ].map((item) => (
                                         <li key={item.name}>
                                             <NavLink
                                                 to={item.path}

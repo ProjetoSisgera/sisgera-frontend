@@ -393,6 +393,23 @@ export const vitimaApi = {
     occ(`/vitima/deleteVitima?idVitima=${idVitima}`, { method: 'DELETE' }),
 };
 
+// Auditoria: cada API guarda a sua (auth: usuários, perfis e corporação;
+// occurrence: ocorrências; inventory: estoque, patrimônio e doações). A tela
+// junta as três. `filtros` vira query string; valores vazios são ignorados.
+const auditQuery = (filtros) => {
+  const params = new URLSearchParams();
+  Object.entries(filtros).forEach(([chave, valor]) => {
+    if (valor !== undefined && valor !== null && valor !== '') params.set(chave, valor);
+  });
+  return `/audit/listAudit?${params.toString()}`;
+};
+
+export const auditApi = {
+  listAuth: (filtros) => request(auditQuery(filtros)),
+  listOcorrencia: (filtros) => occ(auditQuery(filtros)),
+  listInventario: (filtros) => inv(auditQuery(filtros)),
+};
+
 export const hospitalApi = {
   list: (idCorporacao) =>
     occ(`/hospital/listHospitalByCorporacao?idCorporacao=${idCorporacao}`),
