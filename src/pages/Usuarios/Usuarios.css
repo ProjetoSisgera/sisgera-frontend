@@ -42,10 +42,6 @@
     color: var(--texto-secundario);
 }
 
-.mfa-pendente-badge {
-    margin-left: 6px;
-}
-
 /* ---- Modal ---- */
 .modal-backdrop {
     position: fixed;

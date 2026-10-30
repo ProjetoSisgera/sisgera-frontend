@@ -439,14 +439,6 @@ export default function Usuarios() {
                     </td>
                     <td>
                       <span className="status-badge ativo">{getPerfilNome(u.idPerfil)}</span>
-                      {u.mfaAtivo === false && (
-                        <span
-                          className="status-badge pendente mfa-pendente-badge"
-                          title="O usuário vai configurar o MFA no próximo login."
-                        >
-                          MFA pendente
-                        </span>
-                      )}
                     </td>
                     {canManageUsers && (
                       <td className="actions-cell text-right">
