@@ -408,6 +408,8 @@ export const auditApi = {
   listAuth: (filtros) => request(auditQuery(filtros)),
   listOcorrencia: (filtros) => occ(auditQuery(filtros)),
   listInventario: (filtros) => inv(auditQuery(filtros)),
+  // Só os ids dos usuários globais, para mostrar "Administrador do sistema".
+  usuariosGlobais: () => request('/audit/usuariosGlobais'),
 };
 
 export const hospitalApi = {

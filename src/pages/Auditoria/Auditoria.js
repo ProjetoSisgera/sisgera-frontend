@@ -60,6 +60,8 @@ const formatarDataHora = (valor) =>
 
 const ISO_DATA = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
+const ADMIN_SISTEMA = 'Administrador do sistema';
+
 function formatarValor(valor) {
   if (valor === null || valor === undefined || valor === '') return '—';
   if (typeof valor === 'boolean') return valor ? 'Sim' : 'Não';
@@ -127,6 +129,7 @@ export default function Auditoria() {
   const [fontes, setFontes] = useState(fontesVazias);
   const [loading, setLoading] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
+  const [idsGlobais, setIdsGlobais] = useState([]);
   const [detalhe, setDetalhe] = useState(null);
   // Descarta a resposta de uma busca antiga quando os filtros mudam no meio.
   const buscaAtual = useRef(0);
@@ -217,8 +220,18 @@ export default function Auditoria() {
       .catch(() => setUsuarios([]));
   }, [podeVer, idCorporacao]);
 
+  // Ações do Superusuário: a corporação não o enxerga, então aparece só como
+  // "Administrador do sistema", sem nome.
+  useEffect(() => {
+    if (!podeVer) return;
+    auditApi.usuariosGlobais()
+      .then(res => setIdsGlobais(res?.idsUsuario ?? []))
+      .catch(() => setIdsGlobais([]));
+  }, [podeVer]);
+
   const nomeUsuario = (idUsuario) => {
     if (idUsuario === user?.sub) return 'Você';
+    if (idsGlobais.includes(idUsuario)) return ADMIN_SISTEMA;
     return usuarios.find(u => u.idUsuario === idUsuario)?.nome || `Usuário #${idUsuario}`;
   };
 
@@ -277,6 +290,9 @@ export default function Auditoria() {
           <select value={filtros.idUsuario} onChange={alterarFiltro('idUsuario')}>
             <option value="">Todos</option>
             {user?.sub && <option value={user.sub}>Você</option>}
+            {idsGlobais.filter(id => id !== user?.sub).map(id => (
+              <option key={`global-${id}`} value={id}>{ADMIN_SISTEMA}</option>
+            ))}
             {usuarios.filter(u => u.idUsuario !== user?.sub).map(u => (
               <option key={u.idUsuario} value={u.idUsuario}>{u.nome}</option>
             ))}
