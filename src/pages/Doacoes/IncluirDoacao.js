@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { doacaoApi } from '../../services/api';
+import { hojeLocal } from '../../utils/datas';
 import CurrencyInput from '../../components/CurrencyInput/CurrencyInput';
 import './Doacoes.css';
 
@@ -18,7 +19,7 @@ const IncluirDoacao = () => {
         idTipoPessoa: 1,
         nomeDoador: '',
         cpfDoador: '',
-        dataDoacao: new Date().toISOString().split('T')[0],
+        dataDoacao: hojeLocal(),
         valor: '',
         descricao: '',
         observacao: '',

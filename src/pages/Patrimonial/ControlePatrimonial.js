@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { patrimonioApi } from '../../services/api';
+import { formatarDataSemHora } from '../../utils/datas';
 import './Patrimonial.css';
 
 const SITUACAO_LABEL = { 1: 'Ativo', 2: 'Em Manutenção', 3: 'Baixado' };
@@ -12,11 +13,7 @@ const SITUACAO_CLASS = { 1: 'ativo', 2: 'em-manutencao', 3: 'baixado' };
 const formatCurrency = (value) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0);
 
-const formatDateBR = (isoDate) => {
-    if (!isoDate) return '—';
-    const d = new Date(isoDate);
-    return isNaN(d) ? '—' : d.toLocaleDateString('pt-BR');
-};
+const formatDateBR = (isoDate) => formatarDataSemHora(isoDate, '—');
 
 const ControlePatrimonial = () => {
     const { selectedCorporacao } = useAuth();

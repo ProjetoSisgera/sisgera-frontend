@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { ocorrenciaApi } from '../../services/api';
 import NovaOcorrenciaModal from './NovaOcorrenciaModal';
+import { formatarDataSemHora, formatarHorarioDigitado } from '../../utils/datas';
 import { GaleriaMidias, TermosRecusa } from './MidiasOcorrencia';
 import './Ocorrencias.css';
 
@@ -31,7 +32,7 @@ const STATUS_OPTIONS = {
   ],
 };
 
-const formatDate     = (iso) => iso ? new Date(iso).toLocaleDateString('pt-BR') : '-';
+// Data e hora de verdade (cadastro, validação): no fuso do navegador.
 const formatDateTime = (iso) => iso ? new Date(iso).toLocaleString('pt-BR')     : '-';
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -435,10 +436,10 @@ const OcorrenciaDetailModal = ({ ocorrencia, onClose }) => {
 
           {/* Horários */}
           <Sec>HORÁRIOS</Sec>
-          <Row label="Data da Ocorrência"      value={formatDate(ocorrencia.dataOcorrencia)} />
-          <Row label="Hora Transmissão"         value={formatDateTime(ocorrencia.horaTransmissao)} />
-          <Row label="Hora Chegada ao Local"    value={formatDateTime(ocorrencia.horaChegadaLocal)} />
-          <Row label="Hora Chegada ao Hospital" value={formatDateTime(ocorrencia.horaChegadaHospital)} />
+          <Row label="Data da Ocorrência"      value={formatarDataSemHora(ocorrencia.dataOcorrencia)} />
+          <Row label="Hora Transmissão"         value={formatarHorarioDigitado(ocorrencia.horaTransmissao)} />
+          <Row label="Hora Chegada ao Local"    value={formatarHorarioDigitado(ocorrencia.horaChegadaLocal)} />
+          <Row label="Hora Chegada ao Hospital" value={formatarHorarioDigitado(ocorrencia.horaChegadaHospital)} />
 
           {/* Chamado */}
           {(origemLabel || localLabel) && (
@@ -499,7 +500,7 @@ const OcorrenciaDetailModal = ({ ocorrencia, onClose }) => {
                     </div>
 
                     <div style={{ padding: '10px 16px' }}>
-                      <Row label="Data de Nascimento" value={v.dataNascimento ? formatDate(v.dataNascimento) : null} />
+                      <Row label="Data de Nascimento" value={v.dataNascimento ? formatarDataSemHora(v.dataNascimento) : null} />
                       <Row label="Gênero"       value={GENERO_LABELS[v.idGenero]} />
                       <Row label="Nome Social"  value={v.nomeSocial} />
                       <Row label="Nome da Mãe"  value={v.nomeMae} />
@@ -620,7 +621,9 @@ const TabTodas = ({ data, loading, error, onView, onEdit, onDelete, onStatusClic
       </div>
       {data.length === 0 ? (
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--texto-secundario)' }}>
-          Nenhuma ocorrência registrada.
+          {search.trim() || filterTipo
+            ? 'Nenhuma ocorrência encontrada para a busca.'
+            : 'Nenhuma ocorrência registrada.'}
         </div>
       ) : (
         <div className="table-wrapper">
@@ -658,7 +661,7 @@ const TabTodas = ({ data, loading, error, onView, onEdit, onDelete, onStatusClic
                         </>
                     }
                   </td>
-                  <td>{formatDate(item.dataOcorrencia)}</td>
+                  <td>{formatarDataSemHora(item.dataOcorrencia)}</td>
                   <td>
                     <span
                       className={`status-pill ${STATUS_CLASS[item.idTipoStatus] || ''}`}

@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Ocorrencias.css';
 import useAutoSave, { chaveRascunho } from '../../hooks/useAutoSave';
+import { hojeLocal } from '../../utils/datas';
 import { ocorrenciaApi, vitimaApi, veiculoOcorrenciaApi, hospitalApi, usuarioApi, midiaApi } from '../../services/api';
 import {
     LIMITE_MIDIAS, ACCEPT_MIDIA, ACCEPT_TERMO, DESTINOS_COM_RECUSA,
-    formatarTamanho, problemaMidia, problemaTermo,
+    formatarTamanho, problemaMidia, problemaTermo, ehVideo,
 } from './midias';
 
 // ── Enums mapeados do backend ──────────────────────────────────────────────
@@ -243,7 +244,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
         setCurrentStep(1);
         setSelectedBoType('');
         setFormData({
-            data_ocorrencia: new Date().toISOString().split('T')[0],
+            data_ocorrencia: hojeLocal(),
             hora_transmissao: '', hora_chegada_local: '', hora_chegada_hospital: '',
             idTipoOrigemChamado: '', origemChamadoOutro: '',
             idTipoLocalOcorrencia: '', localOcorrenciaOutro: '',
@@ -266,6 +267,11 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
             if (restoreLock.current) return;
             restoreLock.current = true;
             setIsInitialized(false);
+            // O componente não desmonta ao fechar: sem isto, os arquivos da vez
+            // anterior voltariam junto com o rascunho, que não guarda arquivos.
+            setMidias([]);
+            setErroMidias('');
+            setPendencias(null);
             const saved = getDraft();
             const hasData = saved && (saved.selectedBoType || saved.formData?.data_ocorrencia || saved.vitimas?.length);
             if (hasData) {
@@ -1372,7 +1378,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                                             <ul className="midias-selecionadas">
                                                 {midias.map((a, i) => (
                                                     <li key={`${a.name}-${a.lastModified}-${i}`}>
-                                                        <FontAwesomeIcon icon={a.type.startsWith('video/') ? 'video' : 'image'} />
+                                                        <FontAwesomeIcon icon={ehVideo(a) ? 'video' : 'image'} />
                                                         <span title={a.name}>{a.name}</span>
                                                         <span>{formatarTamanho(a.size)}</span>
                                                         <button type="button" className="midia-card__excluir" disabled={saving}

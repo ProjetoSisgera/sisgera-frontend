@@ -226,7 +226,8 @@
 .midia-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #f8fafc; display: flex; flex-direction: column; }
 .midia-card img, .midia-card video { display: block; width: 100%; height: 120px; object-fit: cover; background: #0f172a; }
 .midia-card__info { display: flex; align-items: center; gap: 6px; padding: 6px 8px; font-size: 11px; color: #64748b; }
-.midia-card__nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #334155; }
+/* Nome em até 2 linhas, quebrando onde precisar; o nome inteiro fica no title. */
+.midia-card__nome { flex: 1; min-width: 0; overflow: hidden; color: #334155; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
 .midia-card__excluir { background: none; border: none; color: #dc2626; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
 .midia-card__excluir:hover { background: #fee2e2; }
 .midias-vazio { font-size: 13px; color: #64748b; margin: 0; }

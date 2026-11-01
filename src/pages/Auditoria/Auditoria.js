@@ -38,8 +38,6 @@ const NOMES_ENTIDADE = {
   ProcedimentoAvaliacaoClinica: 'Procedimento da avaliação',
   EquipePlantaoOcorrencia: 'Equipe de plantão',
   MidiaOcorrencia: 'Mídia da ocorrência',
-  // Tabela antiga, trocada por MidiaOcorrencia; o nome segue para registros antigos.
-  FotoOcorrencia: 'Foto da ocorrência',
   Produto: 'Produto',
   MovimentoEstoque: 'Movimento de estoque',
   Patrimonio: 'Patrimônio',
@@ -72,13 +70,22 @@ function formatarValor(valor) {
   return String(valor);
 }
 
-// Identificador do registro alterado: id<Entidade> (ou a chave composta).
+// Chave primária que não segue o padrão id<Entidade>.
+const CHAVE_PRIMARIA = { MidiaOcorrencia: 'idMidia' };
+
+// Identificador do registro alterado: id<Entidade> (ou a chave composta). Nas
+// tabelas da ocorrência, diz também de qual ocorrência é: "#29 (Ocorrência #16)".
 function identificarRegistro(item) {
   const dados = item.dadosNovos ?? item.dadosAntigos;
   if (!dados) return '';
   if (dados.where) return `${dados.count ?? 0} registro(s)`;
-  const chave = `id${item.entidade}`;
-  if (dados[chave] !== undefined) return `#${dados[chave]}`;
+  const chave = CHAVE_PRIMARIA[item.entidade] ?? `id${item.entidade}`;
+  if (dados[chave] !== undefined) {
+    const daOcorrencia = item.entidade !== 'Ocorrencia' && dados.idOcorrencia !== undefined
+      ? ` (Ocorrência #${dados.idOcorrencia})`
+      : '';
+    return `#${dados[chave]}${daOcorrencia}`;
+  }
   const ids = Object.keys(dados).filter(k => k.startsWith('id') && k !== 'idCorporacao');
   return ids.slice(0, 2).map(k => `${k}: ${dados[k]}`).join(', ');
 }

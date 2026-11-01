@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { doacaoApi } from '../../services/api';
+import { formatarDataSemHora } from '../../utils/datas';
 import './Doacoes.css';
 
 const TIPO_DOACAO_LABEL = { 1: 'Dinheiro', 2: 'Material', 3: 'Serviço' };
@@ -12,11 +13,7 @@ const TIPO_DOACAO_CLASS = { 1: 'dinheiro', 2: 'material', 3: 'servico' };
 const formatCurrency = (value) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0);
 
-const formatDateBR = (isoDate) => {
-    if (!isoDate) return '—';
-    const d = new Date(isoDate);
-    return isNaN(d) ? '—' : d.toLocaleDateString('pt-BR');
-};
+const formatDateBR = (isoDate) => formatarDataSemHora(isoDate, '—');
 
 const Doacoes = () => {
     const { selectedCorporacao } = useAuth();

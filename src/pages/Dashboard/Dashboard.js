@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../../contexts/AuthContext';
 import { ocorrenciaApi } from '../../services/api';
 import StatCard from '../../components/StatCard/StatCard';
+import { formatarDataSemHora } from '../../utils/datas';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import './Dashboard.css';
 
@@ -23,7 +24,6 @@ const TIPO_OCORRENCIA = { 1: 'Simplificado', 2: 'Incêndio', 3: 'Resgate' };
 const TIPO_STATUS_LABEL = { 1: 'Rascunho', 4: 'Pend. Validação' };
 const STATUS_CLASS      = { 1: 'urgente',   4: 'pendente' };
 
-const formatDate = (iso) => iso ? new Date(iso).toLocaleDateString('pt-BR') : '-';
 
 const Dashboard = () => {
     const { selectedCorporacao } = useAuth();
@@ -131,7 +131,7 @@ const Dashboard = () => {
                                     {priorities.map((item) => (
                                         <tr key={item.idOcorrencia} className={item.idTipoStatus === 1 ? 'row-urgente' : ''}>
                                             <td>{TIPO_OCORRENCIA[item.idTipoOcorrencia] || '-'}</td>
-                                            <td>{formatDate(item.dataOcorrencia)}</td>
+                                            <td>{formatarDataSemHora(item.dataOcorrencia)}</td>
                                             <td>
                                                 <span className={`status-badge ${STATUS_CLASS[item.idTipoStatus]}`}>
                                                     {TIPO_STATUS_LABEL[item.idTipoStatus]}
