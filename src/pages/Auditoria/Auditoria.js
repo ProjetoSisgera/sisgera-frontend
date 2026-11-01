@@ -16,7 +16,7 @@ const ORIGENS = [
   { chave: 'ocorrencia', listar: auditApi.listOcorrencia,
     entidades: ['Ocorrencia', 'Vitima', 'VeiculoOcorrencia', 'Hospital', 'EncaminhamentoHospitalar',
       'AvaliacaoClinica', 'TraumaAvaliacaoClinica', 'EmergenciaAvaliacaoClinica',
-      'ProcedimentoAvaliacaoClinica', 'EquipePlantaoOcorrencia', 'FotoOcorrencia'] },
+      'ProcedimentoAvaliacaoClinica', 'EquipePlantaoOcorrencia', 'MidiaOcorrencia'] },
   { chave: 'inventario', listar: auditApi.listInventario,
     entidades: ['Produto', 'MovimentoEstoque', 'Patrimonio', 'Doacao'] },
 ];
@@ -37,6 +37,8 @@ const NOMES_ENTIDADE = {
   EmergenciaAvaliacaoClinica: 'Emergência da avaliação',
   ProcedimentoAvaliacaoClinica: 'Procedimento da avaliação',
   EquipePlantaoOcorrencia: 'Equipe de plantão',
+  MidiaOcorrencia: 'Mídia da ocorrência',
+  // Tabela antiga, trocada por MidiaOcorrencia; o nome segue para registros antigos.
   FotoOcorrencia: 'Foto da ocorrência',
   Produto: 'Produto',
   MovimentoEstoque: 'Movimento de estoque',

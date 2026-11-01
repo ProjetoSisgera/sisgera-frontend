@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Ocorrencias.css';
 import useAutoSave, { chaveRascunho } from '../../hooks/useAutoSave';
-import { ocorrenciaApi, vitimaApi, veiculoOcorrenciaApi, hospitalApi, usuarioApi } from '../../services/api';
+import { ocorrenciaApi, vitimaApi, veiculoOcorrenciaApi, hospitalApi, usuarioApi, midiaApi } from '../../services/api';
+import {
+    LIMITE_MIDIAS, ACCEPT_MIDIA, ACCEPT_TERMO, DESTINOS_COM_RECUSA,
+    formatarTamanho, problemaMidia, problemaTermo,
+} from './midias';
 
 // ── Enums mapeados do backend ──────────────────────────────────────────────
 const TIPO_OCC_MAP = { simplificado: 1, incendio: 2, salvamento: 3 };
@@ -149,7 +153,7 @@ const novaVitima = (n) => ({
     traumaOutro: '', emergenciaOutro: '', procedimentoOutro: '',
     idTipoDestino: '',
     idTipoTransporte: '', prefixoPlaca: '', idHospital: '', numeroProntuario: '', nomeMedicoReceptor: '', crm: '',
-    caminhoArquivoRecusa: '',
+    arquivoRecusa: null, // File escolhido; não vai para o rascunho
     idVeiculoUid: '',
     expanded: true,
 });
@@ -222,6 +226,14 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
     const [usuariosLoading, setUsuariosLoading] = useState(false);
     const [usuariosError, setUsuariosError] = useState('');
     const [isInitialized, setIsInitialized] = useState(false);
+    // Arquivos ficam fora do rascunho automático: um File não sobrevive ao
+    // localStorage, e vídeos de até 100 MB não caberiam lá.
+    const [midias, setMidias] = useState([]);
+    const [erroMidias, setErroMidias] = useState('');
+    const [progresso, setProgresso] = useState('');
+    // Depois de salvar, o que não deu certo (vítima ou arquivo). A ocorrência
+    // já existe, então a tela só mostra a lista e fecha.
+    const [pendencias, setPendencias] = useState(null);
     const restoreLock = useRef(false);
 
     const draftState = { currentStep, selectedBoType, formData, vitimas, veiculos };
@@ -244,6 +256,9 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
         setVitimas([]);
         setVeiculos([]);
         setSaveError('');
+        setMidias([]);
+        setErroMidias('');
+        setPendencias(null);
     }, []);
 
     useEffect(() => {
@@ -259,7 +274,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                         if (saved.currentStep) setCurrentStep(saved.currentStep);
                         if (saved.selectedBoType) setSelectedBoType(saved.selectedBoType);
                         if (saved.formData) setFormData(p => ({ ...p, ...saved.formData }));
-                        if (saved.vitimas) setVitimas(saved.vitimas);
+                        if (saved.vitimas) setVitimas(saved.vitimas.map(v => ({ ...v, arquivoRecusa: null })));
                         if (saved.veiculos) setVeiculos(saved.veiculos);
                     } else {
                         clearDraft();
@@ -298,6 +313,28 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
     };
 
     const set = (field, value) => setFormData(p => ({ ...p, [field]: value }));
+
+    const adicionarMidias = (e) => {
+        const novos = Array.from(e.target.files ?? []);
+        e.target.value = '';
+        const problemas = novos.map(problemaMidia).filter(Boolean);
+        const validos = novos.filter(a => !problemaMidia(a));
+        const cabem = LIMITE_MIDIAS - midias.length;
+        if (validos.length > cabem) {
+            problemas.push(`Máximo de ${LIMITE_MIDIAS} mídias por ocorrência: ${validos.length - cabem} arquivo(s) ficaram de fora.`);
+        }
+        setMidias(p => [...p, ...validos.slice(0, cabem)]);
+        setErroMidias(problemas.join(' '));
+    };
+
+    const escolherTermo = (uid, e) => {
+        const arquivo = e.target.files?.[0] ?? null;
+        const problema = arquivo ? problemaTermo(arquivo) : null;
+        if (problema) e.target.value = '';
+        setVitimas(p => p.map(v => v.uid === uid
+            ? { ...v, arquivoRecusa: problema ? null : arquivo, erroArquivoRecusa: problema || '' }
+            : v));
+    };
 
     const toggleEquipe = (idUsuario) => {
         setFormData(p => {
@@ -489,6 +526,10 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                 });
             }
 
+            // O que não der certo daqui em diante não desfaz a ocorrência:
+            // vai para a lista de pendências mostrada no fim.
+            const pendentes = [];
+            const termos = [];
             if (vitimas.length > 0) {
                 const results = await Promise.allSettled(
                     vitimas.map(v => {
@@ -526,24 +567,42 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                             ...(destinoId === 5 && v.numeroProntuario   && { numeroProntuario:   v.numeroProntuario }),
                             ...(destinoId === 5 && v.nomeMedicoReceptor && { nomeMedicoReceptor: v.nomeMedicoReceptor }),
                             ...(destinoId === 5 && v.crm                && { crm:                v.crm }),
-                            ...((destinoId === 4 || destinoId === 6) && v.caminhoArquivoRecusa && { caminhoArquivoRecusa: v.caminhoArquivoRecusa }),
-                        });
+                        }).then(r => r?.Vitima?.idVitima);
                     })
                 );
 
-                const falhas = results.filter(r => r.status === 'rejected');
-                if (falhas.length > 0) {
-                    setSaveError(
-                        `Ocorrência salva, mas ${falhas.length} vítima(s) não puderam ser registradas. ` +
-                        `Verifique os dados e tente novamente.`
-                    );
-                    setSaving(false);
-                    return;
+                results.forEach((r, i) => {
+                    const v = vitimas[i];
+                    if (r.status === 'rejected') {
+                        pendentes.push(`Vítima ${i + 1} (${v.nome}): ${r.reason?.message || 'não foi registrada'}`);
+                    } else if (r.value && v.arquivoRecusa && DESTINOS_COM_RECUSA.includes(Number(v.idTipoDestino))) {
+                        termos.push({ idVitima: r.value, arquivo: v.arquivoRecusa });
+                    }
+                });
+            }
+
+            // Os arquivos vão um de cada vez, depois que a ocorrência e as
+            // vítimas existem, para o progresso fazer sentido e não somar
+            // 10 vídeos de 100 MB subindo juntos.
+            const envios = [
+                ...termos.map(t => ({ nome: t.arquivo.name, enviar: () => vitimaApi.enviarTermoRecusa(t.idVitima, t.arquivo) })),
+                ...midias.map(arquivo => ({ nome: arquivo.name, enviar: () => midiaApi.create(idOcorrencia, arquivo) })),
+            ];
+            for (let i = 0; i < envios.length; i++) {
+                setProgresso(`Enviando arquivo ${i + 1} de ${envios.length}...`);
+                try {
+                    await envios[i].enviar();
+                } catch (err) {
+                    pendentes.push(`${envios[i].nome}: ${err.message || 'falha no envio'}`);
                 }
             }
 
             clearDraft();
             onSaved?.();
+            if (pendentes.length > 0) {
+                setPendencias({ idOcorrencia, itens: pendentes });
+                return;
+            }
             onClose();
         } catch (err) {
             const msg = err.message || '';
@@ -562,6 +621,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
             }
         } finally {
             setSaving(false);
+            setProgresso('');
         }
     };
 
@@ -1218,14 +1278,20 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                                                                 <FontAwesomeIcon icon="file-signature" style={{ marginRight: 8 }} />Termo de Recusa
                                                             </h4>
                                                             <div className="form-group" style={{ margin: 0 }}>
-                                                                <label htmlFor={`vitima-${v.uid}-recusa`} style={{ fontSize: 12 }}>Anexar arquivo do termo de recusa (PDF, imagem)</label>
-                                                                <input type="file" id={`vitima-${v.uid}-recusa`} accept=".pdf,.jpg,.jpeg,.png"
-                                                                    onChange={e => updateVitima(v.uid, 'caminhoArquivoRecusa', e.target.files?.[0]?.name ?? '')}
+                                                                <label htmlFor={`vitima-${v.uid}-recusa`} style={{ fontSize: 12 }}>Anexar o termo de recusa assinado (PDF ou foto, até 10 MB)</label>
+                                                                <input type="file" id={`vitima-${v.uid}-recusa`} accept={ACCEPT_TERMO}
+                                                                    onChange={e => escolherTermo(v.uid, e)}
                                                                     style={{ border: '2px dashed #fed7aa', borderRadius: 8, padding: 10, width: '100%', cursor: 'pointer', background: '#fffbf5' }} />
-                                                                {v.caminhoArquivoRecusa && (
+                                                                {v.erroArquivoRecusa && (
+                                                                    <span style={{ fontSize: 11, color: '#dc2626', marginTop: 4, display: 'block' }}>
+                                                                        <FontAwesomeIcon icon="triangle-exclamation" style={{ marginRight: 4 }} />
+                                                                        {v.erroArquivoRecusa}
+                                                                    </span>
+                                                                )}
+                                                                {v.arquivoRecusa && (
                                                                     <span style={{ fontSize: 11, color: '#92400e', marginTop: 4, display: 'block' }}>
                                                                         <FontAwesomeIcon icon="check" style={{ marginRight: 4, color: '#16a34a' }} />
-                                                                        {v.caminhoArquivoRecusa}
+                                                                        {v.arquivoRecusa.name} ({formatarTamanho(v.arquivoRecusa.size)}), enviado ao salvar a ocorrência
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -1288,11 +1354,35 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
 
                                     <div className="form-group full-width">
                                         <h3 style={{ margin: '0 0 12px', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, fontSize: '1rem' }}>
-                                            <FontAwesomeIcon icon="camera" style={{ marginRight: 8 }} /> Fotos da Ocorrência
+                                            <FontAwesomeIcon icon="camera" style={{ marginRight: 8 }} /> Fotos e Vídeos da Ocorrência ({midias.length}/{LIMITE_MIDIAS})
                                         </h3>
-                                        <input type="file" multiple accept="image/*" aria-label="Fotos da Ocorrência"
+                                        <input type="file" multiple accept={ACCEPT_MIDIA} aria-label="Fotos e vídeos da ocorrência"
+                                            onChange={adicionarMidias} disabled={midias.length >= LIMITE_MIDIAS || saving}
                                             style={{ border: '2px dashed #e2e8f0', borderRadius: 8, padding: 12, width: '100%', cursor: 'pointer' }} />
-                                        <span style={{ fontSize: 11, color: '#64748b', display: 'block', marginTop: 4 }}>Múltiplas fotos permitidas. JPG, PNG, WEBP.</span>
+                                        <span style={{ fontSize: 11, color: '#64748b', display: 'block', marginTop: 4 }}>
+                                            Até {LIMITE_MIDIAS} arquivos. Fotos até 10 MB (JPG, PNG, WEBP); vídeos até 100 MB (MP4, MOV, WEBM).
+                                            Os arquivos não entram no rascunho automático: se fechar esta tela antes de salvar, escolha de novo.
+                                        </span>
+                                        {erroMidias && (
+                                            <span style={{ fontSize: 12, color: '#dc2626', display: 'block', marginTop: 6 }}>
+                                                <FontAwesomeIcon icon="triangle-exclamation" style={{ marginRight: 4 }} />{erroMidias}
+                                            </span>
+                                        )}
+                                        {midias.length > 0 && (
+                                            <ul className="midias-selecionadas">
+                                                {midias.map((a, i) => (
+                                                    <li key={`${a.name}-${a.lastModified}-${i}`}>
+                                                        <FontAwesomeIcon icon={a.type.startsWith('video/') ? 'video' : 'image'} />
+                                                        <span title={a.name}>{a.name}</span>
+                                                        <span>{formatarTamanho(a.size)}</span>
+                                                        <button type="button" className="midia-card__excluir" disabled={saving}
+                                                            onClick={() => setMidias(p => p.filter((_, j) => j !== i))} aria-label={`Remover ${a.name}`}>
+                                                            <FontAwesomeIcon icon="xmark" />
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </div>
 
                                     {/* Resumo */}
@@ -1304,6 +1394,7 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                                             <div><strong>Vítimas:</strong> {vitimas.length} cadastradas</div>
                                             <div><strong>Cidade:</strong> {formData.cidade || '—'}</div>
                                             <div><strong>Equipe:</strong> {formData.equipePlantao.length} selecionados</div>
+                                            <div><strong>Mídias:</strong> {midias.length} selecionadas</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1318,7 +1409,24 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                             </div>
                         )}
 
+                        {pendencias && (
+                            <div className="modal-error" style={{ margin: '0 24px 12px', display: 'block' }}>
+                                <p style={{ margin: '0 0 6px', fontWeight: 600 }}>
+                                    <FontAwesomeIcon icon="triangle-exclamation" /> Ocorrência #{pendencias.idOcorrencia} salva, mas alguns itens ficaram pendentes:
+                                </p>
+                                <ul style={{ margin: '0 0 6px', paddingLeft: 20 }}>
+                                    {pendencias.itens.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                                <p style={{ margin: 0 }}>Para completar, abra a ocorrência em <strong>Editar</strong>.</p>
+                            </div>
+                        )}
+
                         {/* Navegação */}
+                        {pendencias ? (
+                            <div className="form-navigation" style={{ justifyContent: 'flex-end' }}>
+                                <button type="button" className="btn btn-primary" onClick={onClose}>Fechar</button>
+                            </div>
+                        ) : (
                         <div className="form-navigation">
                             <button type="button" className="btn btn-secondary" onClick={handlePrev} disabled={currentStep === 1 || saving}>
                                 Voltar
@@ -1326,11 +1434,12 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                             <button type="button" className="btn btn-primary" onClick={handleNext} disabled={saving}>
                                 {currentStep === TOTAL_STEPS
                                     ? saving
-                                        ? <><FontAwesomeIcon icon="sync" spin style={{ marginRight: 8 }} />Salvando...</>
+                                        ? <><FontAwesomeIcon icon="sync" spin style={{ marginRight: 8 }} />{progresso || 'Salvando...'}</>
                                         : <><FontAwesomeIcon icon="check" style={{ marginRight: 8 }} />Salvar Ocorrência</>
                                     : 'Avançar'}
                             </button>
                         </div>
+                        )}
                     </div>
                 </div>
             </div>

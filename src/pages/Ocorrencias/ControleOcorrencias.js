@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { ocorrenciaApi } from '../../services/api';
 import NovaOcorrenciaModal from './NovaOcorrenciaModal';
+import { GaleriaMidias, TermosRecusa } from './MidiasOcorrencia';
 import './Ocorrencias.css';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -353,6 +354,10 @@ const EditOcorrenciaModal = ({ ocorrencia, onClose, onSaved }) => {
                 style={{ resize: 'vertical' }}
               />
             </div>
+
+            {/* Arquivos são enviados e excluídos na hora, sem esperar o "Salvar Alterações". */}
+            <GaleriaMidias idOcorrencia={ocorrencia.idOcorrencia} editavel />
+            <TermosRecusa idOcorrencia={ocorrencia.idOcorrencia} editavel />
           </div>
           <div className="modal__footer">
             <button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>Cancelar</button>
@@ -561,6 +566,9 @@ const OcorrenciaDetailModal = ({ ocorrencia, onClose }) => {
               })}
             </>
           )}
+
+          <GaleriaMidias idOcorrencia={ocorrencia.idOcorrencia} />
+          <TermosRecusa idOcorrencia={ocorrencia.idOcorrencia} />
 
           {/* Registro */}
           <Sec>REGISTRO</Sec>

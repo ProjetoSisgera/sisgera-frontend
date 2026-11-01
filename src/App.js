@@ -37,6 +37,8 @@ import {
   faFilePen, faHourglassHalf, faChevronRight,
   // MFA
   faMobileScreen, faCopy, faDownload,
+  // Mídias da ocorrência
+  faVideo, faImage, faPaperclip,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -51,6 +53,8 @@ library.add(
   faChartBar, faClock, faHospital,
   faFilePen, faHourglassHalf, faChevronRight,
   faMobileScreen, faCopy, faDownload,
+  // Mídias da ocorrência
+  faVideo, faImage, faPaperclip,
 );
 
 const PAGE_TITLES = {

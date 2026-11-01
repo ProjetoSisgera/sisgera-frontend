@@ -80,8 +80,10 @@ async function parseResponse(res) {
 // a mensagem da API chega à tela.
 async function request(path, { publica = false, ...options } = {}, baseUrl = BASE_URL) {
   const token = publica ? null : getToken();
+  // Com FormData (envio de arquivo) o navegador monta o Content-Type com o
+  // boundary do multipart; fixar 'application/json' quebraria o envio.
   const headers = {
-    'Content-Type': 'application/json',
+    ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -115,6 +117,14 @@ async function request(path, { publica = false, ...options } = {}, baseUrl = BAS
 }
 
 const occ = (path, options = {}) => request(path, options, OCCURRENCE_URL);
+
+// Corpo multipart: os campos primeiro e o arquivo por último, no campo "arquivo".
+function formArquivo(campos, arquivo) {
+  const form = new FormData();
+  Object.entries(campos).forEach(([nome, valor]) => form.append(nome, valor));
+  form.append('arquivo', arquivo);
+  return form;
+}
 const inv = (path, options = {}) => request(path, options, INVENTORY_URL);
 
 // Endpoints de autenticação
@@ -391,6 +401,27 @@ export const vitimaApi = {
 
   delete: (idVitima) =>
     occ(`/vitima/deleteVitima?idVitima=${idVitima}`, { method: 'DELETE' }),
+
+  // PDF ou foto, até 10 MB. Só para vítima que recusou atendimento ou encaminhamento.
+  enviarTermoRecusa: (idVitima, arquivo) =>
+    occ('/vitima/enviarTermoRecusa', { method: 'POST', body: formArquivo({ idVitima }, arquivo) }),
+
+  // { url, nomeArquivo }: a URL é assinada e vale 5 minutos.
+  urlTermoRecusa: (idVitima) =>
+    occ(`/vitima/urlTermoRecusa?idVitima=${idVitima}`),
+};
+
+// Fotos (até 10 MB) e vídeos (até 100 MB) da ocorrência, no máximo 10.
+// A lista já vem com a URL assinada de cada arquivo, válida por 5 minutos.
+export const midiaApi = {
+  list: (idOcorrencia) =>
+    occ(`/midiaOcorrencia/listMidiaByOcorrencia?idOcorrencia=${idOcorrencia}`),
+
+  create: (idOcorrencia, arquivo) =>
+    occ('/midiaOcorrencia/createMidia', { method: 'POST', body: formArquivo({ idOcorrencia }, arquivo) }),
+
+  delete: (idMidia) =>
+    occ(`/midiaOcorrencia/deleteMidia?idMidia=${idMidia}`, { method: 'DELETE' }),
 };
 
 // Auditoria: cada API guarda a sua (auth: usuários, perfis e corporação;
