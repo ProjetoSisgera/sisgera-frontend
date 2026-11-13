@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { produtoApi, movimentoEstoqueApi } from '../../services/api';
+import Pagination from '../../components/Pagination/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import './Produtos.css';
 
 const UNIDADE_LABEL = {
@@ -167,6 +169,7 @@ const ControleProdutos = () => {
     const filtered = products.filter(p =>
         p.nome?.toLowerCase().includes(search.toLowerCase())
     );
+    const paginacao = usePagination(filtered);
 
     const isEntrada = movForm.idTipoMovimento === 1;
 
@@ -256,7 +259,7 @@ const ControleProdutos = () => {
                                             Nenhum produto encontrado.
                                         </td>
                                     </tr>
-                                ) : filtered.map(product => {
+                                ) : paginacao.pageItems.map(product => {
                                     const saldo = saldos[product.idProduto];
                                     const estoqueMin = product.estoqueMinimo ?? 0;
                                     const isBaixo = saldo !== undefined && estoqueMin > 0 && saldo <= estoqueMin;
@@ -332,9 +335,7 @@ const ControleProdutos = () => {
                 )}
 
                 {!loading && (
-                    <div className="pagination">
-                        <span>Mostrando {filtered.length} de {products.length} resultados</span>
-                    </div>
+                    <Pagination page={paginacao.page} totalPages={paginacao.totalPages} total={paginacao.total} pageSize={paginacao.pageSize} onPageChange={paginacao.setPage} label="produtos" />
                 )}
             </section>
 
@@ -474,7 +475,7 @@ const ControleProdutos = () => {
 
             {/* ── MODAL: EDITAR PRODUTO ── */}
             {editingProduct && (
-                <div className="modal-overlay" onClick={() => setEditingProduct(null)}>
+                <div className="modal-overlay active" onClick={() => setEditingProduct(null)}>
                     <div className="modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px' }}>
                         <div className="modal-header">
                             <h3>Editar Produto</h3>

@@ -174,6 +174,29 @@ const formatPlaca = (raw) => {
 };
 const isValidPlaca = (p) => /^[A-Z]{3}-\d{4}$/.test(p) || /^[A-Z]{3}\d[A-Z]\d{2}$/.test(p);
 
+// ── Validação de CPF (dígitos verificadores) ─────────────────────────────
+const isValidCpf = (cpf) => {
+    const digits = (cpf || '').replace(/\D/g, '');
+    if (digits.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(digits)) return false;
+
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+        soma += parseInt(digits.charAt(i), 10) * (10 - i);
+    }
+    let resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(digits.charAt(9), 10)) return false;
+
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+        soma += parseInt(digits.charAt(i), 10) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    return resto === parseInt(digits.charAt(10), 10);
+};
+
 // ── Masks ────────────────────────────────────────────────────────────────
 const formatCpf = (v) => {
     const d = v.replace(/\D/g, '').slice(0, 11);
@@ -424,11 +447,12 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
             });
             vitimas.forEach((v, idx) => {
                 const n = idx + 1;
-                const cpfDigits = v.cpf.replace(/\D/g, '');
-                if (!v.cpf || !v.nome || !v.nascimento) {
-                    erros.push(`Vítima ${n}: CPF, nome e data de nascimento são obrigatórios.`);
-                } else if (cpfDigits.length !== 11) {
-                    erros.push(`Vítima ${n}: CPF inválido — informe os 11 dígitos.`);
+                const cpfDigits = (v.cpf || '').replace(/\D/g, '');
+                if (cpfDigits.length > 0 && !isValidCpf(cpfDigits)) {
+                    erros.push(`Vítima ${n}: CPF inválido.`);
+                }
+                if (!v.nome || !v.nascimento) {
+                    erros.push(`Vítima ${n}: nome e data de nascimento são obrigatórios.`);
                 } else {
                     if (v.traumas.includes(17) && !v.traumaOutro?.trim())
                         erros.push(`Vítima ${n}: descreva o trauma "Outro".`);
@@ -450,11 +474,12 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
         const errosVitimas = [];
         vitimas.forEach((v, idx) => {
             const n = idx + 1;
-            const cpfDigits = v.cpf.replace(/\D/g, '');
-            if (!v.cpf || !v.nome || !v.nascimento) {
-                errosVitimas.push(`Vítima ${n}: CPF, nome e data de nascimento são obrigatórios.`);
-            } else if (cpfDigits.length !== 11) {
-                errosVitimas.push(`Vítima ${n}: CPF inválido — informe os 11 dígitos.`);
+            const cpfDigits = (v.cpf || '').replace(/\D/g, '');
+            if (cpfDigits.length > 0 && !isValidCpf(cpfDigits)) {
+                errosVitimas.push(`Vítima ${n}: CPF inválido.`);
+            }
+            if (!v.nome || !v.nascimento) {
+                errosVitimas.push(`Vítima ${n}: nome e data de nascimento são obrigatórios.`);
             } else {
                 if (v.traumas.includes(17) && !v.traumaOutro?.trim())
                     errosVitimas.push(`Vítima ${n}: Descreva o trauma selecionado como "Outro".`);
@@ -982,9 +1007,9 @@ const NovaOcorrenciaModal = ({ isOpen, onClose, onSaved, idCorporacao, idRespons
                                                     <h3 className="section-header"><FontAwesomeIcon icon="user" style={{ marginRight: 8 }} />Dados Pessoais</h3>
                                                     <div className="form-grid">
                                                         <div className="form-group">
-                                                            <label htmlFor={`vitima-${v.uid}-cpf`}>CPF *</label>
+                                                            <label htmlFor={`vitima-${v.uid}-cpf`}>CPF</label>
                                                             <input type="text" id={`vitima-${v.uid}-cpf`} placeholder="000.000.000-00" maxLength={14} value={v.cpf}
-                                                                onChange={e => updateVitima(v.uid, 'cpf', formatCpf(e.target.value))} required />
+                                                                onChange={e => updateVitima(v.uid, 'cpf', formatCpf(e.target.value))} />
                                                         </div>
                                                         <div className="form-group">
                                                             <label htmlFor={`vitima-${v.uid}-nome`}>Nome Completo *</label>

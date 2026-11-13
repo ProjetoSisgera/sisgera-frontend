@@ -34,7 +34,7 @@ import {
   // Novos ícones para login, admin e permissões
   faLock, faEyeSlash, faArrowRightFromBracket, faBuilding, faKey,
   faChartBar, faClock, faHospital,
-  faFilePen, faHourglassHalf, faChevronRight,
+  faFilePen, faHourglassHalf, faChevronRight, faChevronLeft,
   // MFA
   faMobileScreen, faCopy, faDownload,
   // Mídias da ocorrência
@@ -51,7 +51,7 @@ library.add(
   faTint, faCamera, faFileSignature, faSun, faMoon, faBars, faXmark,
   faLock, faEyeSlash, faArrowRightFromBracket, faBuilding, faKey,
   faChartBar, faClock, faHospital,
-  faFilePen, faHourglassHalf, faChevronRight,
+  faFilePen, faHourglassHalf, faChevronRight, faChevronLeft,
   faMobileScreen, faCopy, faDownload,
   // Mídias da ocorrência
   faVideo, faImage, faPaperclip,

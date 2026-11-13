@@ -588,3 +588,67 @@ body.dark-mode .kpi-icon.total {
     background-color: rgba(100, 116, 139, 0.2);
     color: #94a3b8;
 }
+
+
+/* =========================================================
+   SELEÇÃO NO MODO ESCURO — estado selecionado sempre visível
+   ---------------------------------------------------------
+   O seletor "body.dark-mode .chip-option" (mais específico) vencia o
+   ".chip-option.active" das páginas, apagando o destaque do item
+   selecionado. Estas regras ficam por último e restauram o destaque.
+   ========================================================= */
+body.dark-mode {
+    color-scheme: dark;
+}
+
+body.dark-mode .chip-option.active,
+body.dark-mode .chip-option.active:hover {
+    background-color: #dc2626;
+    border-color: #fca5a5;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(252, 165, 165, 0.45);
+}
+
+body.dark-mode .chip-option.active::before {
+    content: '\2713';
+    font-weight: 700;
+}
+
+body.dark-mode .toggle-card.selected,
+body.dark-mode .type-card.selected {
+    background-color: #7f1d1d;
+    border-color: #f87171;
+    color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.45);
+}
+
+body.dark-mode .dropdown-item.active {
+    background-color: #7f1d1d;
+    color: #ffffff;
+}
+
+/* Selects: lista de opções legível e opção marcada em destaque */
+body.dark-mode select option {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+body.dark-mode select option:checked {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+/* Radios e checkboxes: o estilo genérico de input não pode esconder a marcação */
+body.dark-mode input[type='radio'],
+body.dark-mode input[type='checkbox'] {
+    accent-color: #ef4444;
+    width: auto;
+}
+
+/* Paginação numerada — página atual em destaque */
+body.dark-mode .pagination-controls button.active {
+    background-color: #dc2626;
+    border-color: #fca5a5;
+    color: #ffffff;
+}

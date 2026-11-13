@@ -21,6 +21,7 @@ const IncluirDoacao = () => {
         cpfDoador: '',
         dataDoacao: hojeLocal(),
         valor: '',
+        quantidade: '1',
         descricao: '',
         observacao: '',
     });
@@ -42,7 +43,9 @@ const IncluirDoacao = () => {
                 nomeDoador: form.idTipoPessoa !== 1 ? (form.nomeDoador || null) : null,
                 cpfDoador: form.idTipoPessoa !== 1 ? (form.cpfDoador || null) : null,
                 dataDoacao: form.dataDoacao,
-                valor: isDinheiro ? (form.valor !== '' ? Number(form.valor) : 0) : 0,
+                // Dinheiro: valor doado. Material/Serviço: valor unitário (0 se desconhecido).
+                valor: form.valor !== '' ? Number(form.valor) : 0,
+                quantidade: isDinheiro ? 1 : Math.max(1, parseInt(form.quantidade, 10) || 1),
                 observacao: isDinheiro ? (form.observacao || null) : (form.descricao || null),
             };
             await doacaoApi.create(payload);
@@ -176,6 +179,44 @@ const IncluirDoacao = () => {
                                         onChange={e => handleChange('descricao', e.target.value)}
                                     />
                                 </div>
+                            )}
+
+                            {/* QUANTIDADE E VALOR (Material ou Serviço) */}
+                            {!isDinheiro && (
+                                <>
+                                    <div className="form-group">
+                                        <label htmlFor="quantidade">
+                                            {form.idTipoDoacao === 2 ? 'Quantidade do material' : 'Quantas vezes foi realizado'}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="quantidade"
+                                            min="1"
+                                            step="1"
+                                            value={form.quantidade}
+                                            onChange={e => handleChange('quantidade', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="valor-unitario">
+                                            {form.idTipoDoacao === 2 ? 'Valor unitário do material (R$)' : 'Valor do serviço por vez (R$)'}
+                                        </label>
+                                        <CurrencyInput
+                                            id="valor-unitario"
+                                            value={form.valor}
+                                            onChange={val => handleChange('valor', val)}
+                                        />
+                                    </div>
+                                    {form.valor !== '' && (
+                                        <p className="form-group full-width" style={{ fontSize: '13px', color: 'var(--cor-texto-secundario)' }}>
+                                            Valor total estimado:{' '}
+                                            <strong>
+                                                {(Number(form.valor) * (parseInt(form.quantidade, 10) || 1))
+                                                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                            </strong>
+                                        </p>
+                                    )}
+                                </>
                             )}
 
                             {/* OBSERVAÇÃO (Dinheiro) */}

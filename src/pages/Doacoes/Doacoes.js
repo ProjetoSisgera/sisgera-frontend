@@ -5,6 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { doacaoApi } from '../../services/api';
 import { formatarDataSemHora } from '../../utils/datas';
+import CurrencyInput from '../../components/CurrencyInput/CurrencyInput';
+import Pagination from '../../components/Pagination/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import './Doacoes.css';
 
 const TIPO_DOACAO_LABEL = { 1: 'Dinheiro', 2: 'Material', 3: 'Serviço' };
@@ -70,6 +73,7 @@ const Doacoes = () => {
             cpfDoador: doacao.cpfDoador ?? '',
             dataDoacao: doacao.dataDoacao ? doacao.dataDoacao.slice(0, 10) : '',
             valor: doacao.valor ?? '',
+            quantidade: String(doacao.quantidade ?? 1),
             observacao: doacao.observacao ?? '',
         });
     };
@@ -91,6 +95,9 @@ const Doacoes = () => {
                 cpfDoador: editingDoacao.cpfDoador || null,
                 dataDoacao: editingDoacao.dataDoacao || null,
                 valor: editingDoacao.valor !== '' ? Number(editingDoacao.valor) : 0,
+                quantidade: Number(editingDoacao.idTipoDoacao) === 1
+                    ? 1
+                    : Math.max(1, parseInt(editingDoacao.quantidade, 10) || 1),
                 observacao: editingDoacao.observacao || null,
             };
             const res = await doacaoApi.update(payload);
@@ -114,6 +121,24 @@ const Doacoes = () => {
     });
 
     const isDinheiro = (d) => d.idTipoDoacao === 1;
+    const paginacao = usePagination(filtered);
+
+    const renderValorDescricao = (item) => {
+        if (isDinheiro(item)) return formatCurrency(item.valor);
+        const qtd = item.quantidade ?? 1;
+        const unit = item.valor ?? 0;
+        const rotuloQtd = item.idTipoDoacao === 2 ? `${qtd} un.` : `${qtd}x`;
+        return (
+            <>
+                <div>{item.observacao || '—'}</div>
+                {unit > 0 && (
+                    <small style={{ color: 'var(--cor-texto-secundario)' }}>
+                        {rotuloQtd} × {formatCurrency(unit)} = <strong>{formatCurrency(unit * qtd)}</strong>
+                    </small>
+                )}
+            </>
+        );
+    };
 
     return (
         <main className="main-content">
@@ -199,7 +224,7 @@ const Doacoes = () => {
                                             Nenhuma doação encontrada.
                                         </td>
                                     </tr>
-                                ) : filtered.map(item => (
+                                ) : paginacao.pageItems.map(item => (
                                     <tr key={item.idDoacao}>
                                         <td>{formatDateBR(item.dataDoacao)}</td>
                                         <td>
@@ -208,11 +233,7 @@ const Doacoes = () => {
                                             </span>
                                         </td>
                                         <td className="font-medium">{item.nomeDoador || 'Anônimo'}</td>
-                                        <td>
-                                            {isDinheiro(item)
-                                                ? formatCurrency(item.valor)
-                                                : (item.observacao || '—')}
-                                        </td>
+                                        <td>{renderValorDescricao(item)}</td>
                                         <td className="actions-cell text-right">
                                             {canManageUsers && (
                                                 <>
@@ -242,9 +263,14 @@ const Doacoes = () => {
                 )}
 
                 {!loading && (
-                    <div className="pagination">
-                        <span>Mostrando {filtered.length} de {donations.length}</span>
-                    </div>
+                    <Pagination
+                        page={paginacao.page}
+                        totalPages={paginacao.totalPages}
+                        total={paginacao.total}
+                        pageSize={paginacao.pageSize}
+                        onPageChange={paginacao.setPage}
+                        label="doações"
+                    />
                 )}
             </section>
 
@@ -321,16 +347,38 @@ const Doacoes = () => {
                                 {editingDoacao.idTipoDoacao === 1 && (
                                     <div className="form-group">
                                         <label>Valor (R$)*</label>
-                                        <div className="currency-input-group">
-                                            <span className="currency-prefix">R$</span>
+                                        <CurrencyInput
+                                            required
+                                            value={editingDoacao.valor}
+                                            onChange={val => handleEditChange('valor', val)}
+                                        />
+                                    </div>
+                                )}
+                                {editingDoacao.idTipoDoacao !== 1 && (
+                                    <>
+                                        <div className="form-group">
+                                            <label htmlFor="edit-quantidade">
+                                                {editingDoacao.idTipoDoacao === 2 ? 'Quantidade do material' : 'Quantas vezes foi realizado'}
+                                            </label>
                                             <input
+                                                id="edit-quantidade"
                                                 type="number"
-                                                step="0.01"
-                                                value={editingDoacao.valor}
-                                                onChange={e => handleEditChange('valor', e.target.value)}
+                                                min="1"
+                                                step="1"
+                                                value={editingDoacao.quantidade}
+                                                onChange={e => handleEditChange('quantidade', e.target.value)}
                                             />
                                         </div>
-                                    </div>
+                                        <div className="form-group">
+                                            <label>
+                                                {editingDoacao.idTipoDoacao === 2 ? 'Valor unitário do material (R$)' : 'Valor do serviço por vez (R$)'}
+                                            </label>
+                                            <CurrencyInput
+                                                value={editingDoacao.valor}
+                                                onChange={val => handleEditChange('valor', val)}
+                                            />
+                                        </div>
+                                    </>
                                 )}
                                 <div className="form-group full-width">
                                     <label>Observações / Descrição</label>

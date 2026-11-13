@@ -5,6 +5,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { patrimonioApi } from '../../services/api';
 import { formatarDataSemHora } from '../../utils/datas';
+import Pagination from '../../components/Pagination/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import './Patrimonial.css';
 
 const SITUACAO_LABEL = { 1: 'Ativo', 2: 'Em Manutenção', 3: 'Baixado' };
@@ -105,6 +107,7 @@ const ControlePatrimonial = () => {
         a.descricao?.toLowerCase().includes(search.toLowerCase()) ||
         String(a.idPatrimonio).includes(search)
     );
+    const paginacao = usePagination(filtered);
 
     return (
         <main className="main-content">
@@ -191,7 +194,7 @@ const ControlePatrimonial = () => {
                                             Nenhum bem patrimonial encontrado.
                                         </td>
                                     </tr>
-                                ) : filtered.map(asset => (
+                                ) : paginacao.pageItems.map(asset => (
                                     <tr key={asset.idPatrimonio}>
                                         <td className="font-medium">#{asset.idPatrimonio}</td>
                                         <td>{asset.descricao}</td>
@@ -233,9 +236,7 @@ const ControlePatrimonial = () => {
                 )}
 
                 {!loading && (
-                    <div className="pagination">
-                        <span>Mostrando {filtered.length} de {assets.length} resultados</span>
-                    </div>
+                    <Pagination page={paginacao.page} totalPages={paginacao.totalPages} total={paginacao.total} pageSize={paginacao.pageSize} onPageChange={paginacao.setPage} label="itens" />
                 )}
             </section>
 

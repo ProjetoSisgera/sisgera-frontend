@@ -552,8 +552,53 @@ input[type="number"]::-webkit-outer-spin-button {
     transition: background-color 0.15s;
 }
 
-.pagination-controls button:hover {
+.pagination-controls button:hover:not(:disabled) {
     background-color: var(--cor-fundo);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.pagination-controls button {
+    min-width: 36px;
+}
+
+.pagination-controls button.active {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination-controls button:focus-visible {
+    outline: 2px solid var(--cor-primaria);
+    outline-offset: 2px;
+}
+
+.pagination-gap {
+    padding: 0 6px;
+    color: var(--cor-texto-secundario);
+}
+
+/* Tabelas grandes rolam dentro do painel, com o cabeçalho fixo */
+.table-wrapper {
+    max-height: 65vh;
+    overflow: auto;
+}
+
+.table-wrapper thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 
@@ -713,6 +758,20 @@ body.dark-mode .field-error textarea {
     padding: 24px;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
+}
+
+/* O <form> fica entre o container e o corpo/rodapé: precisa ser flex para que
+   o corpo role internamente e o rodapé (botão de confirmar) nunca saia da tela. */
+.modal-container {
+    overflow: hidden;
+}
+
+.modal-container > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .modal-body.form-grid {
